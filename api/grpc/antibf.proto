@@ -1,0 +1,71 @@
+
+syntax = "proto3";
+
+package grpcapi;
+
+service AntiBruteforce {
+    rpc CheckLogin (CheckLoginRequest) returns (CheckLoginResponse);
+    rpc ResetLogin(ResetLoginRequest) returns (ResetLoginResponse);
+    rpc AddWhiteList(AddWhiteListRequest) returns (AddWhiteListResponse);
+    rpc DeleteWhiteList(DeleteWhiteListRequest) returns (DeleteWhiteListResponse);
+    rpc AddBlackList(AddBlackListRequest) returns (AddBlackListResponse);
+    rpc DeleteBlackList(DeleteBlackListRequest) returns (DeleteBlackListResponse);
+}
+
+message CheckLoginRequest {
+    string login = 1;
+    string password = 2;
+    string ip = 3;
+}
+
+message CheckLoginResponse {
+    bool   checked = 1;
+    string reason =2;
+}
+
+message ResetLoginRequest {
+    string login = 1;
+    string ip = 2;
+}
+
+message ResetLoginResponse {
+    bool   reseted = 1;
+    string reason =2;
+}
+
+
+message AddWhiteListRequest {
+    string ipmask = 1;
+}
+
+message AddWhiteListResponse {
+    bool   added = 1;
+    string reason = 2;
+}
+
+message DeleteWhiteListRequest {
+    string ipmask = 1;
+}
+
+message DeleteWhiteListResponse {
+    bool   deleted = 1;
+    string reason = 2;
+}
+
+message AddBlackListRequest {
+    string ipmask = 1;
+}
+
+message AddBlackListResponse {
+    bool   added = 1;
+    string reason = 2;
+}
+
+message DeleteBlackListRequest {
+    string ipmask = 1;
+}
+
+message DeleteBlackListResponse {
+    bool   deleted = 1;
+    string reason = 2;
+}
