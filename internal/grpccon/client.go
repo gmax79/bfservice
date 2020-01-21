@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	grpcapi "github.com/gmax79/antibf/api/grpc"
+	grpcapi "github.com/gmax79/bfservice/api/grpc"
 
 	"google.golang.org/grpc"
 )
@@ -21,7 +21,7 @@ type Client struct {
 	client grpcapi.AntiBruteforceClient
 }
 
-// Connect - create connection to antibf service
+// Connect - create connection to abf service
 func Connect(host string) (*Client, error) {
 	clientCon, err := grpc.Dial(host, grpc.WithInsecure())
 	if err != nil {

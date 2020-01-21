@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/gmax79/antibf/internal/grpccon"
+	"github.com/gmax79/bfservice/internal/grpccon"
 )
 
 const host = "localhost:9000"

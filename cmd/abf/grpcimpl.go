@@ -4,14 +4,14 @@ import (
 	"context"
 	"net"
 
-	grpcapi "github.com/gmax79/antibf/api/grpc"
-	"github.com/gmax79/antibf/internal/buckets"
+	grpcapi "github.com/gmax79/bfservice/api/grpc"
+	"github.com/gmax79/bfservice/internal/buckets"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
 
-// AntibfGrpcImpl - grpc implementaion struct for service
-type AntibfGrpcImpl struct {
+// AbfGrpcImpl - grpc implementaion struct for service
+type AbfGrpcImpl struct {
 	server    *grpc.Server
 	lasterror error
 	logger    *zap.Logger
@@ -19,12 +19,12 @@ type AntibfGrpcImpl struct {
 }
 
 // createGRPC - service grpc interface
-func openGRPCConnect(filter buckets.Filter, host string, zaplog *zap.Logger) (*AntibfGrpcImpl, error) {
+func openGRPCConnect(filter buckets.Filter, host string, zaplog *zap.Logger) (*AbfGrpcImpl, error) {
 	listen, err := net.Listen("tcp", host)
 	if err != nil {
 		return nil, err
 	}
-	g := &AntibfGrpcImpl{}
+	g := &AbfGrpcImpl{}
 	g.server = grpc.NewServer()
 	g.logger = zaplog
 	g.filter = filter
@@ -37,20 +37,20 @@ func openGRPCConnect(filter buckets.Filter, host string, zaplog *zap.Logger) (*A
 }
 
 // HealthCheck - method to check service for alive
-func (ab *AntibfGrpcImpl) HealthCheck(ctx context.Context, in *grpcapi.HealthCheckRequst) (*grpcapi.HealthCheckResponse, error) {
+func (ab *AbfGrpcImpl) HealthCheck(ctx context.Context, in *grpcapi.HealthCheckRequst) (*grpcapi.HealthCheckResponse, error) {
 	var out grpcapi.HealthCheckResponse
 	out.Status = "ok"
 	return &out, nil
 }
 
 // Stop - gracefully stopping grpc server
-func (ab *AntibfGrpcImpl) Stop(ctx context.Context) {
+func (ab *AbfGrpcImpl) Stop(ctx context.Context) {
 	ab.server.GracefulStop()
 	//todo use ctx
 }
 
 // CheckLogin - check login for bruteforce state. return true if can login or false for not
-func (ab *AntibfGrpcImpl) CheckLogin(ctx context.Context,
+func (ab *AbfGrpcImpl) CheckLogin(ctx context.Context,
 	in *grpcapi.CheckLoginRequest) (*grpcapi.CheckLoginResponse, error) {
 	var out grpcapi.CheckLoginResponse
 	err := ab.filter.CheckLogin(in.Login, in.Password, in.Ip)
@@ -60,7 +60,7 @@ func (ab *AntibfGrpcImpl) CheckLogin(ctx context.Context,
 }
 
 // ResetLogin - remove login from internal base (reset bruteforce rate)
-func (ab *AntibfGrpcImpl) ResetLogin(ctx context.Context, in *grpcapi.ResetLoginRequest) (*grpcapi.ResetLoginResponse, error) {
+func (ab *AbfGrpcImpl) ResetLogin(ctx context.Context, in *grpcapi.ResetLoginRequest) (*grpcapi.ResetLoginResponse, error) {
 	var out grpcapi.ResetLoginResponse
 	err := ab.filter.ResetLogin(in.Login, in.Ip)
 	out.Reseted = false
@@ -68,7 +68,7 @@ func (ab *AntibfGrpcImpl) ResetLogin(ctx context.Context, in *grpcapi.ResetLogin
 }
 
 // AddWhiteList - add ip into whitelist
-func (ab *AntibfGrpcImpl) AddWhiteList(ctx context.Context, in *grpcapi.AddWhiteListRequest) (*grpcapi.AddWhiteListResponse, error) {
+func (ab *AbfGrpcImpl) AddWhiteList(ctx context.Context, in *grpcapi.AddWhiteListRequest) (*grpcapi.AddWhiteListResponse, error) {
 	var out grpcapi.AddWhiteListResponse
 	err := ab.filter.AddWhiteList(in.Ipmask)
 	out.Added = false
@@ -76,7 +76,7 @@ func (ab *AntibfGrpcImpl) AddWhiteList(ctx context.Context, in *grpcapi.AddWhite
 }
 
 // DeleteWhiteList - delete ip from whitelist
-func (ab *AntibfGrpcImpl) DeleteWhiteList(ctx context.Context, in *grpcapi.DeleteWhiteListRequest) (*grpcapi.DeleteWhiteListResponse, error) {
+func (ab *AbfGrpcImpl) DeleteWhiteList(ctx context.Context, in *grpcapi.DeleteWhiteListRequest) (*grpcapi.DeleteWhiteListResponse, error) {
 	var out grpcapi.DeleteWhiteListResponse
 	err := ab.filter.DeleteWhiteList(in.Ipmask)
 	out.Deleted = false
@@ -84,7 +84,7 @@ func (ab *AntibfGrpcImpl) DeleteWhiteList(ctx context.Context, in *grpcapi.Delet
 }
 
 // AddBlackList - add ip into blacklist
-func (ab *AntibfGrpcImpl) AddBlackList(ctx context.Context, in *grpcapi.AddBlackListRequest) (*grpcapi.AddBlackListResponse, error) {
+func (ab *AbfGrpcImpl) AddBlackList(ctx context.Context, in *grpcapi.AddBlackListRequest) (*grpcapi.AddBlackListResponse, error) {
 	var out grpcapi.AddBlackListResponse
 	err := ab.filter.AddBlackList(in.Ipmask)
 	out.Added = false
@@ -92,7 +92,7 @@ func (ab *AntibfGrpcImpl) AddBlackList(ctx context.Context, in *grpcapi.AddBlack
 }
 
 // DeleteBlackList - delete ip from blacklist
-func (ab *AntibfGrpcImpl) DeleteBlackList(ctx context.Context, in *grpcapi.DeleteBlackListRequest) (*grpcapi.DeleteBlackListResponse, error) {
+func (ab *AbfGrpcImpl) DeleteBlackList(ctx context.Context, in *grpcapi.DeleteBlackListRequest) (*grpcapi.DeleteBlackListResponse, error) {
 	var out grpcapi.DeleteBlackListResponse
 	err := ab.filter.AddBlackList(in.Ipmask)
 	out.Deleted = false

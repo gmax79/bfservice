@@ -1,17 +1,17 @@
-antibf:
+abf:
 	cd scripts && ./genproto.sh
-	cd cmd/antibf && go build -o antibf
+	cd cmd/abf && go build -o abf
 
 cli:
 	cd cmd/cli &&  go build -o cli
 
-all: antibf cli
+all: abf cli
 
-run: antibf
-	cd cmd/antibf  && ./antibf
+run: abf
+	cd cmd/abf  && ./abf
 
 clean:
-	rm -f cmd/antibf/antibf cmd/cli/cli
+	rm -f cmd/abg/abf cmd/cli/cli
 
 check:
 	golangci-lint run --enable-all

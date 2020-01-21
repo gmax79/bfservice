@@ -1,8 +1,9 @@
-module github.com/gmax79/antibf
+module github.com/gmax79/bfservice
 
 go 1.13
 
 require (
+	github.com/gmax79/antibf v0.0.0-20200120212258-cf54bbc2dd02
 	github.com/gmax79/otusgolang/rmq v0.0.0-20200117124837-fe6894daed2e
 	github.com/golang/protobuf v1.3.2
 	github.com/spf13/cobra v0.0.5

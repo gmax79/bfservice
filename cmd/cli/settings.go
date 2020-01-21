@@ -11,7 +11,7 @@ var currentServiceHost string
 
 func settingsFilePath() string {
 	userHomedir := os.Getenv("HOME")
-	return path.Join(userHomedir, ".antibf/host")
+	return path.Join(userHomedir, ".abf/host")
 }
 
 func saveServiceHost(host string) error {

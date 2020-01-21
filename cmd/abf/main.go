@@ -10,7 +10,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/gmax79/antibf/internal/buckets"
+	"github.com/gmax79/bfservice/internal/buckets"
 )
 
 // RatesConfig - struct to read config with bruteforce rates

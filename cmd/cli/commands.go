@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gmax79/antibf/internal/grpccon"
+	"github.com/gmax79/bfservice/internal/grpccon"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/net/context"
