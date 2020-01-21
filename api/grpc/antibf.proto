@@ -10,6 +10,7 @@ service AntiBruteforce {
     rpc DeleteWhiteList(DeleteWhiteListRequest) returns (DeleteWhiteListResponse);
     rpc AddBlackList(AddBlackListRequest) returns (AddBlackListResponse);
     rpc DeleteBlackList(DeleteBlackListRequest) returns (DeleteBlackListResponse);
+    rpc HealthCheck(HealthCheckRequst) returns (HealthCheckResponse);
 }
 
 message CheckLoginRequest {
@@ -69,3 +70,11 @@ message DeleteBlackListResponse {
     bool   deleted = 1;
     string reason = 2;
 }
+
+ message HealthCheckRequst {
+     string apiversion = 1;
+ }
+
+ message HealthCheckResponse {
+     string status = 1;
+ }

@@ -9,6 +9,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/gmax79/antibf/internal/buckets"
 )
 
 // RatesConfig - struct to read config with bruteforce rates
@@ -44,7 +46,10 @@ func main() {
 		return
 	}
 	fmt.Println("Rates:", ratesconfig)
-	grpc, err := openGRPCConnect("localhost:9000", nil)
+
+	filter := buckets.CreateFilter()
+
+	grpc, err := openGRPCConnect(filter, "localhost:9000", nil)
 	if err != nil {
 		return
 	}
