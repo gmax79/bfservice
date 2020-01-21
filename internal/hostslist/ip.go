@@ -1,12 +1,13 @@
 package hostslist
 
 import (
+	"encoding/binary"
 	"errors"
 	"strconv"
 	"strings"
 )
 
-type ip [4]byte
+type ip uint32
 
 func octToByte(oct string) (byte, bool) {
 	val, err := strconv.Atoi(oct)
@@ -16,14 +17,26 @@ func octToByte(oct string) (byte, bool) {
 	return byte(val), true
 }
 
+func packip(b [4]byte) ip {
+	v := binary.LittleEndian.Uint32(b[:])
+	return ip(v)
+}
+
+func unpackip(v ip) [4]byte {
+	b := make([]byte, 4)
+	binary.LittleEndian.PutUint32(b, uint32(v))
+	var a [4]byte
+	copy(a[:], b[:4])
+	return a
+}
+
 func (v *ip) Parse(host string) error {
-	var ipvalues ip
+	var ipvalues [4]byte
 	var ok bool
 	octets := strings.Split(host, ".")
 	if len(octets) == 4 {
 		for i, o := range octets {
-			ipvalues[i], ok = octToByte(o)
-			if !ok {
+			if ipvalues[i], ok = octToByte(o); !ok {
 				break
 			}
 		}
@@ -31,5 +44,6 @@ func (v *ip) Parse(host string) error {
 	if !ok {
 		return errors.New("It is not correct ipv4 address: " + host)
 	}
+	*v = packip(ipvalues)
 	return nil
 }

@@ -1,8 +1,8 @@
 package hostslist
 
 type subnet struct {
-	ip   uint32
-	mask uint32
+	address ip
+	mask    ip
 }
 
 func (m *subnet) Parse(subnet string) error {
