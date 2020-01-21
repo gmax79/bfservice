@@ -48,15 +48,16 @@ func main() {
 	fmt.Println("Rates:", ratesconfig)
 
 	filter := buckets.CreateFilter()
+	host := ":9000"
 
-	grpc, err := openGRPCConnect(filter, "localhost:9000", nil)
+	grpc, err := openGRPCConnect(filter, host, nil)
 	if err != nil {
 		return
 	}
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
-	log.Println("Antibruteforce service started")
+	log.Println("Antibruteforce service started on:", host)
 
 	<-stop
 	grpc.Stop(context.Background())

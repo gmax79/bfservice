@@ -91,3 +91,10 @@ func (ab *AntibfGrpcImpl) DeleteBlackList(ctx context.Context, in *grpcapi.Delet
 	out.Deleted = false
 	return &out, err
 }
+
+// HealthCheck - method to check service for alive
+func (ab *AntibfGrpcImpl) HealthCheck(ctx context.Context, in *grpcapi.HealthCheckRequst) (*grpcapi.HealthCheckResponse, error) {
+	var out grpcapi.HealthCheckResponse
+	out.Status = "ok"
+	return &out, nil
+}

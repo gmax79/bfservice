@@ -23,7 +23,7 @@ func main() {
 		Long:                  "Reset (disconnect) current bruteforce service.\nAfter reset command, need select new service.",
 		DisableFlagsInUseLine: true,
 		Args:                  cobra.ExactArgs(0),
-		Run:                   useCommand,
+		Run:                   resetCommand,
 	}
 
 	var cmdClear = &cobra.Command{

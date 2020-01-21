@@ -7,6 +7,9 @@ cli:
 
 all: antibf cli
 
+run: antibf
+	cd cmd/antibf  && ./antibf
+
 clean:
 	rm -f cmd/antibf/antibf cmd/cli/cli
 
