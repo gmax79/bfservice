@@ -33,7 +33,7 @@ func CreateLogger(jsondata []byte) (*zap.Logger, error) {
 	if c.LogEncoding == "console" || c.LogEncoding == "json" {
 		zapconfig.Encoding = c.LogEncoding
 	} else if c.LogEncoding != "" {
-		return nil, fmt.Errorf("Encoding type '%s' not supported. Supported console, json", c.LogEncoding)
+		return nil, fmt.Errorf("encoding type '%s' not supported. supported console, json", c.LogEncoding)
 	}
 	if c.LogFile != "" {
 		zapconfig.OutputPaths = append(zapconfig.OutputPaths, c.LogFile)
@@ -48,7 +48,7 @@ func CreateLogger(jsondata []byte) (*zap.Logger, error) {
 	case "error":
 		zapconfig.Level = zap.NewAtomicLevelAt(zap.ErrorLevel)
 	default:
-		return nil, fmt.Errorf("Verbose level '%s' not supported. Supported debug, info, warning, error", c.VerboseLevel)
+		return nil, fmt.Errorf("verbose level '%s' not supported. supported debug, info, warning, error", c.VerboseLevel)
 	}
 	return zapconfig.Build()
 }

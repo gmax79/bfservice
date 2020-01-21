@@ -1,0 +1,5 @@
+{
+    "login_rate": 10,
+    "password_rate": 100,
+    "ip_rate": 1000
+}

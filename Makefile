@@ -9,3 +9,6 @@ all: antibf cli
 
 clean:
 	rm -f cmd/antibf/antibf cmd/cli/cli
+
+check:
+	golangci-lint run --enable-all
