@@ -41,9 +41,9 @@ func (v *ip) Parse(host string) error {
 			}
 		}
 	}
-	if !ok {
-		return errors.New("It is not correct ipv4 address: " + host)
+	if ok {
+		*v = packip(ipvalues)
+		return nil
 	}
-	*v = packip(ipvalues)
-	return nil
+	return errors.New("It is not correct ipv4 address: " + host)
 }
