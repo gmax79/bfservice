@@ -34,7 +34,6 @@ message ResetLoginResponse {
     string reason =2;
 }
 
-
 message AddWhiteListRequest {
     string ipmask = 1;
 }

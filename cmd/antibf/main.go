@@ -25,13 +25,16 @@ func (r *RatesConfig) Check() error {
 	return nil
 }
 
+func exitOnError(err error) {
+	if err != nil {
+		fmt.Println("Error:", err.Error())
+		os.Exit(1)
+	}
+}
+
 func main() {
 	var err error
-	defer func() {
-		if err != nil {
-			log.Fatalf("Error: %v", err)
-		}
-	}()
+	defer exitOnError(err)
 
 	fmt.Println("Antibruteforce service")
 	var configJSON []byte

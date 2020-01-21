@@ -38,6 +38,13 @@ func openGRPCConnect(filter buckets.Filter, host string, zaplog *zap.Logger) (*A
 	return g, nil
 }
 
+// HealthCheck - method to check service for alive
+func (ab *AntibfGrpcImpl) HealthCheck(ctx context.Context, in *grpcapi.HealthCheckRequst) (*grpcapi.HealthCheckResponse, error) {
+	var out grpcapi.HealthCheckResponse
+	out.Status = "ok"
+	return &out, nil
+}
+
 // Stop - gracefully stopping grpc server
 func (ab *AntibfGrpcImpl) Stop(ctx context.Context) {
 	//todo
@@ -90,11 +97,4 @@ func (ab *AntibfGrpcImpl) DeleteBlackList(ctx context.Context, in *grpcapi.Delet
 	err := ab.filter.AddBlackList(in.Ipmask)
 	out.Deleted = false
 	return &out, err
-}
-
-// HealthCheck - method to check service for alive
-func (ab *AntibfGrpcImpl) HealthCheck(ctx context.Context, in *grpcapi.HealthCheckRequst) (*grpcapi.HealthCheckResponse, error) {
-	var out grpcapi.HealthCheckResponse
-	out.Status = "ok"
-	return &out, nil
 }
