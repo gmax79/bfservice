@@ -24,7 +24,6 @@ func openGRPCConnect(filter buckets.Filter, host string, zaplog *zap.Logger) (*A
 	if err != nil {
 		return nil, err
 	}
-
 	g := &AntibfGrpcImpl{}
 	g.server = grpc.NewServer()
 	g.logger = zaplog
@@ -34,7 +33,6 @@ func openGRPCConnect(filter buckets.Filter, host string, zaplog *zap.Logger) (*A
 	go func() {
 		g.lasterror = g.server.Serve(listen)
 	}()
-
 	return g, nil
 }
 
@@ -47,7 +45,8 @@ func (ab *AntibfGrpcImpl) HealthCheck(ctx context.Context, in *grpcapi.HealthChe
 
 // Stop - gracefully stopping grpc server
 func (ab *AntibfGrpcImpl) Stop(ctx context.Context) {
-	//todo
+	ab.server.GracefulStop()
+	//todo use ctx
 }
 
 // CheckLogin - check login for bruteforce state. return true if can login or false for not
@@ -56,6 +55,7 @@ func (ab *AntibfGrpcImpl) CheckLogin(ctx context.Context,
 	var out grpcapi.CheckLoginResponse
 	err := ab.filter.CheckLogin(in.Login, in.Password, in.Ip)
 	out.Checked = true
+	out.Reason = "Not limited"
 	return &out, err
 }
 
