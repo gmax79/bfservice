@@ -30,6 +30,21 @@ func (m *subnet) Parse(subnet string) error {
 	return nil
 }
 
+func (m *subnet) String() string {
+	return fmt.Sprintf("%s/%d", m.address.String(), m.mask)
+}
+
+var masks = [32]ip{}
+
+func init() {
+	masks[0] = 0
+	var mask ip = 0x8000
+	for i := 1; i < 32; i++ {
+		masks[i] = masks[i-1] | mask
+		mask = mask >> 1
+	}
+}
+
 func (m *subnet) Check(host ip) bool {
-	return false
+	return (host & masks[m.mask]) == m.address
 }

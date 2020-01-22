@@ -47,6 +47,10 @@ func TestParseIP(t *testing.T) {
 	if err := checkip("100.99.98.97", 100, 99, 98, 97); err != nil {
 		t.Fatal(err)
 	}
+	v := packip([4]byte{10, 20, 30, 40})
+	if v.String() != "10.20.30.40" {
+		t.Fatal("ip incorrect converted into string")
+	}
 }
 
 func TestIncorrectParseIP(t *testing.T) {

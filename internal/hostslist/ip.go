@@ -3,6 +3,7 @@ package hostslist
 import (
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -28,6 +29,11 @@ func unpackip(v ip) [4]byte {
 	var a [4]byte
 	copy(a[:], b[:4])
 	return a
+}
+
+func (v *ip) String() string {
+	b := unpackip(*v)
+	return fmt.Sprintf("%d.%d.%d.%d", b[0], b[1], b[2], b[3])
 }
 
 func (v *ip) Parse(host string) error {
