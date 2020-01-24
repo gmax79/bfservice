@@ -18,8 +18,8 @@ type AbfGrpcImpl struct {
 	filter    buckets.Filter
 }
 
-// createGRPC - service grpc interface
-func openGRPCConnect(filter buckets.Filter, host string, zaplog *zap.Logger) (*AbfGrpcImpl, error) {
+// openGRPCServer - service grpc interface
+func openGRPCServer(filter buckets.Filter, host string, zaplog *zap.Logger) (*AbfGrpcImpl, error) {
 	listen, err := net.Listen("tcp", host)
 	if err != nil {
 		return nil, err

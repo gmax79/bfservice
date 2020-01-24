@@ -9,8 +9,3 @@ type Filter interface {
 	AddBlackList(ipsubnet string) error
 	DeleteBlackList(ipsubnet string) error
 }
-
-// CreateFilter - create instance of filter
-func CreateFilter() Filter {
-	return &filterImpl{}
-}

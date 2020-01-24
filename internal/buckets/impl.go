@@ -1,6 +1,18 @@
 package buckets
 
+import "github.com/gmax79/bfservice/internal/hostslist"
+
 type filterImpl struct {
+	whitelist *hostslist.Filter
+	blacklist *hostslist.Filter
+}
+
+// CreateFilter - create instance of filter
+func CreateFilter() Filter {
+	f := filterImpl{}
+	f.whitelist = hostslist.CreateFilter()
+	f.blacklist = hostslist.CreateFilter()
+	return &f
 }
 
 func (f *filterImpl) CheckLogin(login, password, ip string) error {
