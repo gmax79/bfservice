@@ -38,7 +38,7 @@ var masks = [32]ip{}
 
 func init() {
 	masks[0] = 0
-	var mask ip = 0x8000
+	var mask ip = 0x80000000
 	for i := 1; i < 32; i++ {
 		masks[i] = masks[i-1] | mask
 		mask = mask >> 1
@@ -46,5 +46,6 @@ func init() {
 }
 
 func (m *subnet) Check(host ip) bool {
-	return (host & masks[m.mask]) == m.address
+	masked := host & masks[m.mask]
+	return masked == m.address
 }

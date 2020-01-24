@@ -14,16 +14,18 @@ func CreateFilter() *Filter {
 }
 
 // Add - add subnet into list
-func (f *Filter) Add(s subnet) bool {
-	_, exist := f.list[s]
+func (f *Filter) Add(s subnet) {
 	f.list[s] = struct{}{}
-	return exist
 }
 
 // Delete - delete subnet from list
-func (f *Filter) Delete(s subnet) bool {
-	_, exist := f.list[s]
+func (f *Filter) Delete(s subnet) {
 	delete(f.list, s)
+}
+
+// Exist - check subnet existence in list
+func (f *Filter) Exist(s subnet) bool {
+	_, exist := f.list[s]
 	return exist
 }
 

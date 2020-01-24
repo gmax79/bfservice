@@ -19,13 +19,13 @@ func octToByte(oct string) (byte, bool) {
 }
 
 func packip(b [4]byte) ip {
-	v := binary.LittleEndian.Uint32(b[:])
+	v := binary.BigEndian.Uint32(b[:])
 	return ip(v)
 }
 
 func unpackip(v ip) [4]byte {
 	b := make([]byte, 4)
-	binary.LittleEndian.PutUint32(b, uint32(v))
+	binary.BigEndian.PutUint32(b, uint32(v))
 	var a [4]byte
 	copy(a[:], b[:4])
 	return a
