@@ -1,9 +1,9 @@
-package hostslist
+package netsupport
 
 import "testing"
 
 func TestParseSubnet(t *testing.T) {
-	var s subnet
+	var s Subnet
 	err := s.Parse("100.110.120.130/24")
 	if err != nil {
 		t.Fatal(err)
@@ -25,7 +25,7 @@ func TestParseSubnet(t *testing.T) {
 }
 
 func TestSubnetString(t *testing.T) {
-	var s subnet
+	var s Subnet
 	err := s.Parse("1.2.3.4/5")
 	if err != nil {
 		t.Fatal(err)

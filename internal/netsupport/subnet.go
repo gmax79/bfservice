@@ -1,4 +1,4 @@
-package hostslist
+package netsupport
 
 import (
 	"errors"
@@ -7,12 +7,14 @@ import (
 	"strings"
 )
 
-type subnet struct {
-	address ip
+// Subnet - struct to store informaion about network
+type Subnet struct {
+	address IPAddr
 	mask    int
 }
 
-func (m *subnet) Parse(subnet string) error {
+// Parse - convert subnet in string format into object
+func (m *Subnet) Parse(subnet string) error {
 	var err error
 	parts := strings.Split(subnet, "/")
 	if len(parts) == 2 {
@@ -30,22 +32,23 @@ func (m *subnet) Parse(subnet string) error {
 	return nil
 }
 
-func (m *subnet) String() string {
+func (m *Subnet) String() string {
 	return fmt.Sprintf("%s/%d", m.address.String(), m.mask)
 }
 
-var masks = [32]ip{}
+var masks = [32]IPAddr{}
 
 func init() {
 	masks[0] = 0
-	var mask ip = 0x80000000
+	var mask IPAddr = 0x80000000
 	for i := 1; i < 32; i++ {
 		masks[i] = masks[i-1] | mask
 		mask = mask >> 1
 	}
 }
 
-func (m *subnet) Check(host ip) bool {
+// Check - check if host in subnet
+func (m *Subnet) Check(host IPAddr) bool {
 	masked := host & masks[m.mask]
 	return masked == m.address
 }

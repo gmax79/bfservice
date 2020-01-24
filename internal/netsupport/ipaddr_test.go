@@ -1,4 +1,4 @@
-package hostslist
+package netsupport
 
 import (
 	"errors"
@@ -26,7 +26,7 @@ func TestPackUnpack(t *testing.T) {
 }
 
 func checkip(sip string, a, b, c, d byte) error {
-	var v ip
+	var v IPAddr
 	if err := v.Parse(sip); err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func TestParseIP(t *testing.T) {
 }
 
 func TestIncorrectParseIP(t *testing.T) {
-	var v ip
+	var v IPAddr
 	if err := v.Parse("105.11.1.256"); err == nil {
 		t.Fatal("Must be error #1")
 	}

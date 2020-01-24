@@ -1,4 +1,4 @@
-package hostslist
+package netsupport
 
 import (
 	"encoding/binary"
@@ -8,7 +8,8 @@ import (
 	"strings"
 )
 
-type ip uint32
+// IPAddr - object to store ip address
+type IPAddr uint32
 
 func octToByte(oct string) (byte, bool) {
 	val, err := strconv.Atoi(oct)
@@ -18,12 +19,12 @@ func octToByte(oct string) (byte, bool) {
 	return byte(val), true
 }
 
-func packip(b [4]byte) ip {
+func packip(b [4]byte) IPAddr {
 	v := binary.BigEndian.Uint32(b[:])
-	return ip(v)
+	return IPAddr(v)
 }
 
-func unpackip(v ip) [4]byte {
+func unpackip(v IPAddr) [4]byte {
 	b := make([]byte, 4)
 	binary.BigEndian.PutUint32(b, uint32(v))
 	var a [4]byte
@@ -31,12 +32,13 @@ func unpackip(v ip) [4]byte {
 	return a
 }
 
-func (v *ip) String() string {
+func (v *IPAddr) String() string {
 	b := unpackip(*v)
 	return fmt.Sprintf("%d.%d.%d.%d", b[0], b[1], b[2], b[3])
 }
 
-func (v *ip) Parse(host string) error {
+// Parse - convert ip in string format into object
+func (v *IPAddr) Parse(host string) error {
 	var ipvalues [4]byte
 	var ok bool
 	octets := strings.Split(host, ".")
