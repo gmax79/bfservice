@@ -9,8 +9,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/gmax79/bfservice/internal/buckets"
 )
 
 // RatesConfig - struct to read config with bruteforce rates
@@ -50,10 +48,8 @@ func main() {
 	}
 	fmt.Printf("Rates: %d/login, %d/password, %d/host\n", ratesconfig.LoginRate, ratesconfig.PasswordRate, ratesconfig.IPRate)
 
-	filter := buckets.CreateFilter()
 	host := ":9000"
-
-	grpc, err := openGRPCServer(filter, host, nil)
+	grpc, err := openGRPCServer(host, nil)
 	if err != nil {
 		return
 	}
@@ -61,7 +57,6 @@ func main() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 	log.Println("Antibruteforce service started on:", host)
-
 	<-stop
 	grpc.Stop(context.Background())
 	log.Println("Antibruteforce service stopped")

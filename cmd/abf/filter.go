@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/gmax79/bfservice/internal/netsupport"
 )
 
@@ -20,27 +18,25 @@ func createFilter() *filter {
 	return &f
 }
 
-func (f *filter) CheckLogin(login, password, hostip string) (bool, error) {
+func (f *filter) CheckLogin(login, password, hostip string) (bool, string, error) {
 
 	var host netsupport.IPAddr
 	if err := host.Parse(hostip); err != nil {
-		return false, err
+		return false, "", err
 	}
 	if f.blacklist.Check(host) {
-		return false, fmt.Errorf("blocked by blacklist")
+		return false, "blocked by blacklist", nil
 	}
 	if f.whitelist.Check(host) {
-		return true, fmt.Errorf("passed by whitelist")
+		return true, "passed by whitelist", nil
 	}
-
-	return false, nil
+	return true, "buckets not implemented", nil
 }
 
 func (f *filter) ResetLogin(login, hostip string) (bool, error) {
-	return false, nil
+	return true, nil
 }
 
-//todo bool remove ?
 func (f *filter) AddWhiteList(subnetip string) (bool, error) {
 	var snet netsupport.Subnet
 	if err := snet.Parse(subnetip); err != nil {
