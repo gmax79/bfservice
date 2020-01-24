@@ -5,7 +5,6 @@ import (
 	"net"
 
 	grpcapi "github.com/gmax79/bfservice/api/grpc"
-	"github.com/gmax79/bfservice/internal/buckets"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
@@ -15,11 +14,11 @@ type AbfGrpcImpl struct {
 	server    *grpc.Server
 	lasterror error
 	logger    *zap.Logger
-	filter    buckets.Filter
+	fi        *filter
 }
 
 // openGRPCServer - service grpc interface
-func openGRPCServer(filter buckets.Filter, host string, zaplog *zap.Logger) (*AbfGrpcImpl, error) {
+func openGRPCServer(host string, zaplog *zap.Logger) (*AbfGrpcImpl, error) {
 	listen, err := net.Listen("tcp", host)
 	if err != nil {
 		return nil, err
@@ -27,7 +26,7 @@ func openGRPCServer(filter buckets.Filter, host string, zaplog *zap.Logger) (*Ab
 	g := &AbfGrpcImpl{}
 	g.server = grpc.NewServer()
 	g.logger = zaplog
-	g.filter = filter
+	g.filter = createFilter()
 	grpcapi.RegisterAntiBruteforceServer(g.server, g)
 
 	go func() {
@@ -53,9 +52,10 @@ func (ab *AbfGrpcImpl) Stop(ctx context.Context) {
 func (ab *AbfGrpcImpl) CheckLogin(ctx context.Context,
 	in *grpcapi.CheckLoginRequest) (*grpcapi.CheckLoginResponse, error) {
 	var out grpcapi.CheckLoginResponse
-	err := ab.filter.CheckLogin(in.Login, in.Password, in.Ip)
+	var err error
+	out.Checked, err = ab.fi.CheckLogin(in.Login, in.Password, in.Ip)
 	out.Checked = true
-	out.Reason = "Not limited"
+	out.Reason = "Not limited" //todo
 	return &out, err
 }
 
