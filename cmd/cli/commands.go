@@ -25,7 +25,9 @@ func useCommand(cmd *cobra.Command, args []string) {
 	defer exitOnError(err)
 	host := args[0]
 	fmt.Println("Use:", host)
-	conn, err := grpccon.Connect(host)
+
+	var conn *grpccon.Client
+	conn, err = grpccon.Connect(host)
 	defer conn.Close()
 	if err != nil {
 		return
@@ -50,17 +52,17 @@ func resetCommand(cmd *cobra.Command, args []string) {
 func clearCommand(cmd *cobra.Command, args []string) {
 	var err error
 	defer exitOnError(err)
-
 	login := args[0]
 	ip := args[1]
-	fmt.Println("Clear:", login, "ip:", ip)
+	fmt.Printf("Clear: '%s' with ip: '%s'\n", login, ip)
 
 	host, err := getServiceHost()
 	if err != nil {
 		return
 	}
 
-	conn, err := grpccon.Connect(host)
+	var conn *grpccon.Client
+	conn, err = grpccon.Connect(host)
 	defer conn.Close()
 	if err != nil {
 		return
@@ -68,10 +70,16 @@ func clearCommand(cmd *cobra.Command, args []string) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()
 
-	if err = conn.ResetLogin(); err != nil {
+	var resp *grpccon.Response
+	resp, err = conn.ResetLogin(ctx, login, ip)
+	if err != nil {
 		return
 	}
-
+	if resp.Status {
+		fmt.Printf("Successfully cleared, %s\n", resp.Reason)
+	} else {
+		fmt.Printf("Not cleared, %s\n", resp.Reason)
+	}
 }
 
 func passCommand(cmd *cobra.Command, args []string) {

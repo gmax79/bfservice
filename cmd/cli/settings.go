@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -35,11 +36,23 @@ func getServiceHost() (string, error) {
 	if currentServiceHost != "" {
 		return currentServiceHost, nil
 	}
+	settingsFile := settingsFilePath()
+	info, err := os.Stat(settingsFile)
+	if os.IsNotExist(err) {
+		return "", fmt.Errorf("Service not selected, type 'use <service>' first")
+	}
+	if info.IsDir() {
+		return "", fmt.Errorf("Fatal error, found dir with settings file path")
+	}
 	data, err := ioutil.ReadFile(settingsFilePath())
 	if err != nil {
 		return "", err
 	}
-	return string(data), nil
+	path := string(data)
+	if path == "" {
+		return "", fmt.Errorf("Service not set, type 'use <service>' first")
+	}
+	return path, nil
 }
 
 func removeServiceHost() error {
