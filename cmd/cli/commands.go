@@ -12,6 +12,7 @@ import (
 	"golang.org/x/net/context"
 )
 
+// simple exit, without timer by log.Fatal
 func exitOnError(err error) {
 	if err != nil {
 		fmt.Println(err.Error())
@@ -47,7 +48,30 @@ func resetCommand(cmd *cobra.Command, args []string) {
 }
 
 func clearCommand(cmd *cobra.Command, args []string) {
-	fmt.Println("Clear: " + strings.Join(args, " "))
+	var err error
+	defer exitOnError(err)
+
+	login := args[0]
+	ip := args[1]
+	fmt.Println("Clear:", login, "ip:", ip)
+
+	host, err := getServiceHost()
+	if err != nil {
+		return
+	}
+
+	conn, err := grpccon.Connect(host)
+	defer conn.Close()
+	if err != nil {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+
+	if err = conn.ResetLogin(); err != nil {
+		return
+	}
+
 }
 
 func passCommand(cmd *cobra.Command, args []string) {

@@ -9,7 +9,7 @@ import (
 func main() {
 
 	var cmdUse = &cobra.Command{
-		Use:                   "use [host]",
+		Use:                   "use <host>",
 		Short:                 "Use host in next commands",
 		Long:                  "Use (select) host as current bruteforce service.\nAll next commands will work this whese host.",
 		DisableFlagsInUseLine: true,
@@ -27,16 +27,16 @@ func main() {
 	}
 
 	var cmdClear = &cobra.Command{
-		Use:                   "clear [host]",
-		Short:                 "Clear host from blocking lists",
+		Use:                   "clear <login> <ip>",
+		Short:                 "Clear login+host from bruteforce lists",
 		Long:                  "Clear (remove) host from any blockers in service.",
 		DisableFlagsInUseLine: true,
-		Args:                  cobra.ExactArgs(1),
+		Args:                  cobra.ExactArgs(2),
 		Run:                   clearCommand,
 	}
 
 	var cmdPass = &cobra.Command{
-		Use:                   "pass [host|subnet]",
+		Use:                   "pass <host|subnet>",
 		Short:                 "Pass host or subnet",
 		Long:                  "Add host or subnet into whitelist.\nHosts in whitelist always be passed.",
 		DisableFlagsInUseLine: true,
@@ -45,7 +45,7 @@ func main() {
 	}
 
 	var cmdUnpass = &cobra.Command{
-		Use:                   "unpass [host|subnet]",
+		Use:                   "unpass <host|subnet>",
 		Short:                 "Unpass host or subnet",
 		Long:                  "Remove host or subnet from whitelist.\nHost will be processed within another rules.",
 		DisableFlagsInUseLine: true,
@@ -54,7 +54,7 @@ func main() {
 	}
 
 	var cmdBlock = &cobra.Command{
-		Use:                   "block [host|subnet]",
+		Use:                   "block <host|subnet>",
 		Short:                 "Block host or subnet",
 		Long:                  "Add host or subnet into blacklist.\nHosts into blacklist always be blocked.",
 		DisableFlagsInUseLine: true,
@@ -63,7 +63,7 @@ func main() {
 	}
 
 	var cmdUnblock = &cobra.Command{
-		Use:                   "unblock [host|subnet]",
+		Use:                   "unblock <host|subnet>",
 		Short:                 "Unblock host or subnet",
 		Long:                  "Remove host or subnet from blacklist.\nHost will be processed within another rules.",
 		DisableFlagsInUseLine: true,

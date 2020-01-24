@@ -16,22 +16,12 @@ type grpcConn struct {
 }
 
 func grpcConnect(host string) (*grpcConn, error) {
-	//ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	//defer cancel()
-
-	// var err error
-	// cli, err :=     grpccon.CreateClient(ctx, host)
-	//	assert("", err)
-
 	clientCon, err := grpc.Dial(host, grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
 	c := &grpcConn{}
-	// var cancelfunc func()
-	// _, cancelfunc = context.WithCancel(context.Background())
 	c.cancel = func() {
-		// cancelfunc()
 		clientCon.Close()
 	}
 	c.client = grpcapi.NewAntiBruteforceClient(clientCon)
