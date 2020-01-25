@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"github.com/spf13/cobra"
 )
 
@@ -11,7 +9,7 @@ func main() {
 	var cmdUse = &cobra.Command{
 		Use:                   "use <host>",
 		Short:                 "Use host in next commands",
-		Long:                  "Use (select) host as current bruteforce service.\nAll next commands will work this whese host.",
+		Long:                  "Use (select) host as current bruteforce service.\nAll next commands will work with whese host.",
 		DisableFlagsInUseLine: true,
 		Args:                  cobra.ExactArgs(1),
 		Run:                   useCommand,
@@ -40,7 +38,7 @@ func main() {
 		Short:                 "Pass host or subnet",
 		Long:                  "Add host or subnet into whitelist.\nHosts in whitelist always be passed.",
 		DisableFlagsInUseLine: true,
-		Args:                  cobra.MinimumNArgs(1),
+		Args:                  cobra.ExactArgs(1),
 		Run:                   passCommand,
 	}
 
@@ -49,7 +47,7 @@ func main() {
 		Short:                 "Unpass host or subnet",
 		Long:                  "Remove host or subnet from whitelist.\nHost will be processed within another rules.",
 		DisableFlagsInUseLine: true,
-		Args:                  cobra.MinimumNArgs(1),
+		Args:                  cobra.ExactArgs(1),
 		Run:                   unpassCommand,
 	}
 
@@ -58,7 +56,7 @@ func main() {
 		Short:                 "Block host or subnet",
 		Long:                  "Add host or subnet into blacklist.\nHosts into blacklist always be blocked.",
 		DisableFlagsInUseLine: true,
-		Args:                  cobra.MinimumNArgs(1),
+		Args:                  cobra.ExactArgs(1),
 		Run:                   blockCommand,
 	}
 
@@ -67,7 +65,7 @@ func main() {
 		Short:                 "Unblock host or subnet",
 		Long:                  "Remove host or subnet from blacklist.\nHost will be processed within another rules.",
 		DisableFlagsInUseLine: true,
-		Args:                  cobra.MinimumNArgs(1),
+		Args:                  cobra.ExactArgs(1),
 		Run:                   unblockCommand,
 	}
 
@@ -79,7 +77,5 @@ func main() {
 	})
 
 	err := rootCmd.Execute()
-	if err != nil {
-		log.Fatal(err)
-	}
+	exitOnError(err)
 }

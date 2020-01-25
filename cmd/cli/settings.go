@@ -8,8 +8,6 @@ import (
 	"path/filepath"
 )
 
-var currentServiceHost string
-
 func settingsFilePath() string {
 	userHomedir := os.Getenv("HOME")
 	return path.Join(userHomedir, ".abf/host")
@@ -26,16 +24,10 @@ func saveServiceHost(host string) error {
 		return err
 	}
 	err = ioutil.WriteFile(path, []byte(host), 0600)
-	if err == nil {
-		currentServiceHost = host
-	}
 	return err
 }
 
 func getServiceHost() (string, error) {
-	if currentServiceHost != "" {
-		return currentServiceHost, nil
-	}
 	settingsFile := settingsFilePath()
 	info, err := os.Stat(settingsFile)
 	if os.IsNotExist(err) {
@@ -58,7 +50,6 @@ func getServiceHost() (string, error) {
 func removeServiceHost() error {
 	err := os.Remove(settingsFilePath())
 	if err == nil || os.IsNotExist(err) {
-		currentServiceHost = ""
 		return nil
 	}
 	return err
