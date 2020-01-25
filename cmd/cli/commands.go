@@ -23,46 +23,19 @@ func grpcTimeout() time.Duration {
 	return time.Second * 2
 }
 
-func useCommand(cmd *cobra.Command, args []string) {
-	var err error
-	defer exitOnError(err)
-	host := args[0]
-	fmt.Println("Use:", host)
-
-	var conn *grpccon.Client
-	conn, err = grpccon.Connect(host)
-	defer conn.Close()
-	if err != nil {
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), grpcTimeout())
-	defer cancel()
-	if err = conn.HealthCheck(ctx); err != nil {
-		return
-	}
-	if err = saveServiceHost(host); err != nil {
-		return
-	}
-	fmt.Println("Successfully selected")
-}
-
-func resetCommand(cmd *cobra.Command, args []string) {
-	err := removeServiceHost()
-	exitOnError(err)
-	fmt.Println("Successfully reset")
-}
-
 type connector struct {
 	client *grpccon.Client
 	ctx    context.Context
 	close  func()
 }
 
-func getConnector() (*connector, error) {
+func getConnector(host string) (*connector, error) {
 	var err error
-	host, err := getServiceHost()
-	if err != nil {
-		return nil, err
+	if host == "" {
+		host, err = getServiceHost()
+		if err != nil {
+			return nil, err
+		}
 	}
 	var c connector
 	c.client, err = grpccon.Connect(host)
@@ -78,6 +51,32 @@ func getConnector() (*connector, error) {
 	return &c, nil
 }
 
+func useCommand(cmd *cobra.Command, args []string) {
+	var err error
+	defer exitOnError(err)
+	host := args[0]
+	fmt.Println("Use:", host)
+
+	var conn *connector
+	if conn, err = getConnector(host); err != nil {
+		return
+	}
+	defer conn.close()
+	if err = conn.client.HealthCheck(conn.ctx); err != nil {
+		return
+	}
+	if err = saveServiceHost(host); err != nil {
+		return
+	}
+	fmt.Println("Successfully selected")
+}
+
+func resetCommand(cmd *cobra.Command, args []string) {
+	err := removeServiceHost()
+	exitOnError(err)
+	fmt.Println("Successfully reset")
+}
+
 func clearCommand(cmd *cobra.Command, args []string) {
 	var err error
 	defer exitOnError(err)
@@ -87,7 +86,7 @@ func clearCommand(cmd *cobra.Command, args []string) {
 	fmt.Printf("Clear: '%s' with ip: '%s'\n", login, ip)
 
 	var conn *connector
-	if conn, err = getConnector(); err != nil {
+	if conn, err = getConnector(""); err != nil {
 		return
 	}
 	defer conn.close()
@@ -110,7 +109,7 @@ func passCommand(cmd *cobra.Command, args []string) {
 	fmt.Printf("Adding into whitelist (pass): '%s'\n", snet)
 
 	var conn *connector
-	if conn, err = getConnector(); err != nil {
+	if conn, err = getConnector(""); err != nil {
 		return
 	}
 	defer conn.close()
@@ -133,7 +132,7 @@ func unpassCommand(cmd *cobra.Command, args []string) {
 	fmt.Printf("Removing from whitelist (unpass): '%s'\n", snet)
 
 	var conn *connector
-	if conn, err = getConnector(); err != nil {
+	if conn, err = getConnector(""); err != nil {
 		return
 	}
 	defer conn.close()
@@ -156,7 +155,7 @@ func blockCommand(cmd *cobra.Command, args []string) {
 	fmt.Printf("Adding into blacklist (block): '%s'\n", snet)
 
 	var conn *connector
-	if conn, err = getConnector(); err != nil {
+	if conn, err = getConnector(""); err != nil {
 		return
 	}
 	defer conn.close()
@@ -179,7 +178,7 @@ func unblockCommand(cmd *cobra.Command, args []string) {
 	fmt.Printf("Removing from blacklist (unblock): '%s'\n", snet)
 
 	var conn *connector
-	if conn, err = getConnector(); err != nil {
+	if conn, err = getConnector(""); err != nil {
 		return
 	}
 	defer conn.close()
