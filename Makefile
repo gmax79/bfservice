@@ -2,16 +2,18 @@ abf:
 	cd scripts && ./genproto.sh
 	cd cmd/abf && go build -o abf
 
-cli:
-	cd cmd/cli &&  go build -o cli
+abfcli:
+	cd cmd/abfcli && go build -o abfcli
 
-all: abf cli
+cli: abfcli
+
+all: abf abfcli
 
 run: abf
 	cd cmd/abf  && ./abf
 
 clean:
-	rm -f cmd/abg/abf cmd/cli/cli
+	rm -f cmd/abg/abf cmd/abfcli/abfcli
 
 check:
 	golangci-lint run --enable-all
