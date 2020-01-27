@@ -8,6 +8,12 @@ import (
 	"path/filepath"
 )
 
+var binaryName string
+
+func init() {
+	binaryName = os.Args[0]
+}
+
 func settingsFilePath() string {
 	userHomedir := os.Getenv("HOME")
 	return path.Join(userHomedir, ".abf/host")
@@ -31,7 +37,7 @@ func getServiceHost() (string, error) {
 	settingsFile := settingsFilePath()
 	info, err := os.Stat(settingsFile)
 	if os.IsNotExist(err) {
-		return "", fmt.Errorf("Service not selected, type 'use <service>' first")
+		return "", fmt.Errorf("Service not selected, type '%s use <abf ip[:port]>' command first", binaryName)
 	}
 	if info.IsDir() {
 		return "", fmt.Errorf("Fatal error, found dir with settings file path")
@@ -42,7 +48,7 @@ func getServiceHost() (string, error) {
 	}
 	path := string(data)
 	if path == "" {
-		return "", fmt.Errorf("Service not set, type 'use <service>' first")
+		return "", fmt.Errorf("Service not set, type '%s use <afb ip[:port]>' first", binaryName)
 	}
 	return path, nil
 }

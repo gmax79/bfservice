@@ -2,22 +2,12 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/gmax79/bfservice/internal/grpccon"
 
-	"github.com/spf13/cobra"
 	"golang.org/x/net/context"
 )
-
-// simple exit, without timer by log.Fatal
-func exitOnError(err error) {
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
-}
 
 func grpcTimeout() time.Duration {
 	return time.Second * 2
@@ -51,38 +41,32 @@ func getConnector(host string) (*connector, error) {
 	return &c, nil
 }
 
-func useCommand(cmd *cobra.Command, args []string) {
-	var err error
-	defer exitOnError(err)
-	host := args[0]
+func useCommand(host string) (err error) {
 	fmt.Println("Use:", host)
-
 	var conn *connector
 	if conn, err = getConnector(host); err != nil {
-		return
+		return err
 	}
 	defer conn.close()
 	if err = conn.client.HealthCheck(conn.ctx); err != nil {
-		return
+		return err
 	}
 	if err = saveServiceHost(host); err != nil {
-		return
+		return err
 	}
 	fmt.Println("Successfully selected")
+	return nil
 }
 
-func resetCommand(cmd *cobra.Command, args []string) {
+func resetCommand() error {
 	err := removeServiceHost()
-	exitOnError(err)
-	fmt.Println("Successfully reset")
+	if err == nil {
+		fmt.Println("Successfully reset")
+	}
+	return err
 }
 
-func clearCommand(cmd *cobra.Command, args []string) {
-	var err error
-	defer exitOnError(err)
-
-	login := args[0]
-	ip := args[1]
+func clearCommand(login, ip string) (err error) {
 	fmt.Printf("Clear: '%s' with ip: '%s'\n", login, ip)
 
 	var conn *connector
@@ -100,12 +84,10 @@ func clearCommand(cmd *cobra.Command, args []string) {
 	} else {
 		fmt.Printf("Not cleared, %s\n", resp.Reason)
 	}
+	return nil
 }
 
-func passCommand(cmd *cobra.Command, args []string) {
-	var err error
-	defer exitOnError(err)
-	snet := args[0]
+func passCommand(snet string) (err error) {
 	fmt.Printf("Adding into whitelist (pass): '%s'\n", snet)
 
 	var conn *connector
@@ -123,12 +105,10 @@ func passCommand(cmd *cobra.Command, args []string) {
 	} else {
 		fmt.Printf("Not added in whitelist, %s\n", resp.Reason)
 	}
+	return nil
 }
 
-func unpassCommand(cmd *cobra.Command, args []string) {
-	var err error
-	defer exitOnError(err)
-	snet := args[0]
+func unpassCommand(snet string) (err error) {
 	fmt.Printf("Removing from whitelist (unpass): '%s'\n", snet)
 
 	var conn *connector
@@ -146,12 +126,10 @@ func unpassCommand(cmd *cobra.Command, args []string) {
 	} else {
 		fmt.Printf("Not removed from whitelist, %s\n", resp.Reason)
 	}
+	return nil
 }
 
-func blockCommand(cmd *cobra.Command, args []string) {
-	var err error
-	defer exitOnError(err)
-	snet := args[0]
+func blockCommand(snet string) (err error) {
 	fmt.Printf("Adding into blacklist (block): '%s'\n", snet)
 
 	var conn *connector
@@ -169,12 +147,10 @@ func blockCommand(cmd *cobra.Command, args []string) {
 	} else {
 		fmt.Printf("Not added in blacklist, %s\n", resp.Reason)
 	}
+	return nil
 }
 
-func unblockCommand(cmd *cobra.Command, args []string) {
-	var err error
-	defer exitOnError(err)
-	snet := args[0]
+func unblockCommand(snet string) (err error) {
 	fmt.Printf("Removing from blacklist (unblock): '%s'\n", snet)
 
 	var conn *connector
@@ -192,4 +168,5 @@ func unblockCommand(cmd *cobra.Command, args []string) {
 	} else {
 		fmt.Printf("Not removed from blacklist, %s\n", resp.Reason)
 	}
+	return nil
 }

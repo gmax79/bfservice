@@ -1,8 +1,19 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/spf13/cobra"
 )
+
+// simple exit, without timer by log.Fatal
+func exitOnError(err error) {
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+}
 
 func main() {
 
@@ -12,7 +23,10 @@ func main() {
 		Long:                  "Use (select) host as current bruteforce service.\nAll next commands will work with whese host.",
 		DisableFlagsInUseLine: true,
 		Args:                  cobra.ExactArgs(1),
-		Run:                   useCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			err := useCommand(args[0])
+			exitOnError(err)
+		},
 	}
 
 	var cmdReset = &cobra.Command{
@@ -21,7 +35,10 @@ func main() {
 		Long:                  "Reset (disconnect) current bruteforce service.\nAfter reset command, need select new service.",
 		DisableFlagsInUseLine: true,
 		Args:                  cobra.ExactArgs(0),
-		Run:                   resetCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			err := resetCommand()
+			exitOnError(err)
+		},
 	}
 
 	var cmdClear = &cobra.Command{
@@ -30,7 +47,10 @@ func main() {
 		Long:                  "Clear (remove) host from any blockers in service.",
 		DisableFlagsInUseLine: true,
 		Args:                  cobra.ExactArgs(2),
-		Run:                   clearCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			err := clearCommand(args[0], args[1])
+			exitOnError(err)
+		},
 	}
 
 	var cmdPass = &cobra.Command{
@@ -39,7 +59,10 @@ func main() {
 		Long:                  "Add host or subnet into whitelist.\nHosts in whitelist always be passed.",
 		DisableFlagsInUseLine: true,
 		Args:                  cobra.ExactArgs(1),
-		Run:                   passCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			err := passCommand(args[0])
+			exitOnError(err)
+		},
 	}
 
 	var cmdUnpass = &cobra.Command{
@@ -48,7 +71,10 @@ func main() {
 		Long:                  "Remove host or subnet from whitelist.\nHost will be processed within another rules.",
 		DisableFlagsInUseLine: true,
 		Args:                  cobra.ExactArgs(1),
-		Run:                   unpassCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			err := unpassCommand(args[0])
+			exitOnError(err)
+		},
 	}
 
 	var cmdBlock = &cobra.Command{
@@ -57,7 +83,10 @@ func main() {
 		Long:                  "Add host or subnet into blacklist.\nHosts into blacklist always be blocked.",
 		DisableFlagsInUseLine: true,
 		Args:                  cobra.ExactArgs(1),
-		Run:                   blockCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			err := blockCommand(args[0])
+			exitOnError(err)
+		},
 	}
 
 	var cmdUnblock = &cobra.Command{
@@ -66,7 +95,10 @@ func main() {
 		Long:                  "Remove host or subnet from blacklist.\nHost will be processed within another rules.",
 		DisableFlagsInUseLine: true,
 		Args:                  cobra.ExactArgs(1),
-		Run:                   unblockCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			err := unblockCommand(args[0])
+			exitOnError(err)
+		},
 	}
 
 	var rootCmd = &cobra.Command{Use: "cli"}
@@ -75,7 +107,6 @@ func main() {
 		Use:    "no-help",
 		Hidden: true,
 	})
-
 	err := rootCmd.Execute()
 	exitOnError(err)
 }
