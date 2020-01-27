@@ -43,6 +43,7 @@ func (ab *AbfGrpcImpl) HealthCheck(ctx context.Context, in *grpcapi.HealthCheckR
 
 // Stop - gracefully stopping grpc server
 func (ab *AbfGrpcImpl) Stop(ctx context.Context) {
+	ab.logger.Info("Stropping abf service")
 	ab.server.GracefulStop()
 	//todo use ctx
 }
@@ -58,40 +59,60 @@ func (ab *AbfGrpcImpl) CheckLogin(ctx context.Context,
 
 // ResetLogin - remove login from internal base (reset bruteforce rate)
 func (ab *AbfGrpcImpl) ResetLogin(ctx context.Context, in *grpcapi.ResetLoginRequest) (*grpcapi.ResetLoginResponse, error) {
+	ab.logger.Info("Reset login", zap.String("login", in.Login), zap.String("ip", in.Ip))
 	var out grpcapi.ResetLoginResponse
 	var err error
 	out.Reseted, err = ab.hfilter.ResetLogin(in.Login, in.Ip)
+	if err != nil {
+		ab.logger.Error(err.Error())
+	}
 	return &out, err
 }
 
 // AddWhiteList - add ip into whitelist
 func (ab *AbfGrpcImpl) AddWhiteList(ctx context.Context, in *grpcapi.AddWhiteListRequest) (*grpcapi.AddWhiteListResponse, error) {
+	ab.logger.Info("Add in whitelist", zap.String("mask", in.Ipmask))
 	var out grpcapi.AddWhiteListResponse
 	var err error
 	out.Added, err = ab.hfilter.AddWhiteList(in.Ipmask)
+	if err != nil {
+		ab.logger.Error(err.Error())
+	}
 	return &out, err
 }
 
 // DeleteWhiteList - delete ip from whitelist
 func (ab *AbfGrpcImpl) DeleteWhiteList(ctx context.Context, in *grpcapi.DeleteWhiteListRequest) (*grpcapi.DeleteWhiteListResponse, error) {
+	ab.logger.Info("Delete from whitelist", zap.String("mask", in.Ipmask))
 	var out grpcapi.DeleteWhiteListResponse
 	var err error
 	out.Deleted, err = ab.hfilter.DeleteWhiteList(in.Ipmask)
+	if err != nil {
+		ab.logger.Error(err.Error())
+	}
 	return &out, err
 }
 
 // AddBlackList - add ip into blacklist
 func (ab *AbfGrpcImpl) AddBlackList(ctx context.Context, in *grpcapi.AddBlackListRequest) (*grpcapi.AddBlackListResponse, error) {
+	ab.logger.Info("Add in blacklist", zap.String("mask", in.Ipmask))
 	var out grpcapi.AddBlackListResponse
 	var err error
 	out.Added, err = ab.hfilter.AddBlackList(in.Ipmask)
+	if err != nil {
+		ab.logger.Error(err.Error())
+	}
 	return &out, err
 }
 
 // DeleteBlackList - delete ip from blacklist
 func (ab *AbfGrpcImpl) DeleteBlackList(ctx context.Context, in *grpcapi.DeleteBlackListRequest) (*grpcapi.DeleteBlackListResponse, error) {
+	ab.logger.Info("Delete from blacklist", zap.String("mask", in.Ipmask))
 	var out grpcapi.DeleteBlackListResponse
 	var err error
 	out.Deleted, err = ab.hfilter.AddBlackList(in.Ipmask)
+	if err != nil {
+		ab.logger.Error(err.Error())
+	}
 	return &out, err
 }

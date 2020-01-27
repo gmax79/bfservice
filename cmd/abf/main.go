@@ -9,6 +9,10 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	"go.uber.org/zap"
+
+	nlog "github.com/gmax79/bfservice/internal/log"
 )
 
 // RatesConfig - struct to read config with bruteforce rates
@@ -23,41 +27,43 @@ func (r *RatesConfig) Check() error {
 	return nil
 }
 
-func exitOnError(err error) {
-	if err != nil {
-		fmt.Println("Error:", err.Error())
-		os.Exit(1)
-	}
-}
-
 func main() {
 	var err error
-	defer exitOnError(err)
-
-	fmt.Println("Antibruteforce service")
 	var configJSON []byte
 	if configJSON, err = ioutil.ReadFile("config.json"); err != nil {
-		return
+		log.Fatal(err)
 	}
+	var logger *zap.Logger
+	if logger, err = nlog.CreateLogger(configJSON); err != nil {
+		log.Fatal(err)
+	}
+
+	exitOnError := func(err error) {
+		logger.Error("Error", zap.Error(err))
+		os.Exit(1)
+	}
+
+	logger.Info("Antibruteforce service")
+
 	ratesconfig := RatesConfig{}
 	if err = json.Unmarshal(configJSON, &ratesconfig); err != nil {
-		return
+		exitOnError(err)
 	}
 	if err = ratesconfig.Check(); err != nil {
-		return
+		exitOnError(err)
 	}
-	fmt.Printf("Rates: %d/login, %d/password, %d/host\n", ratesconfig.LoginRate, ratesconfig.PasswordRate, ratesconfig.IPRate)
 
+	fmt.Printf("Rates: %d/login, %d/password, %d/host\n", ratesconfig.LoginRate, ratesconfig.PasswordRate, ratesconfig.IPRate)
 	host := ":9000"
-	grpc, err := openGRPCServer(host, nil)
+	grpc, err := openGRPCServer(host, logger)
 	if err != nil {
-		return
+		exitOnError(err)
 	}
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
-	log.Println("Antibruteforce service started on:", host)
+	logger.Info("Antibruteforce service started", zap.String("host", host))
 	<-stop
 	grpc.Stop(context.Background())
-	log.Println("Antibruteforce service stopped")
+	logger.Info("Antibruteforce service stopped")
 }

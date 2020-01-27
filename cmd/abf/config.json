@@ -1,5 +1,9 @@
 {
     "login_rate": 10,
     "password_rate": 100,
-    "ip_rate": 1000
+    "ip_rate": 1000,
+    "log_file" : "/tmp/abf",
+    "log_level": "info",
+    "log_encoding": "console",
+    "log_debug": 0
 }
