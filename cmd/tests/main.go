@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -26,7 +27,8 @@ func runTests() (err error) {
 	}
 	tests := []func(*grpccon.Client) error{
 		testHealthCheck,
-		testWhiteLists,
+		testAddWhiteList,
+		//testWhiteLists,
 	}
 	for _, t := range tests {
 		if err = t(conn); err != nil {
@@ -36,10 +38,26 @@ func runTests() (err error) {
 	return nil
 }
 
+func printResult(r *grpccon.Response, err error) {
+	if err != nil {
+		fmt.Println("Error", err.Error(), r.Reason)
+	} else {
+		fmt.Println("Ok", r.Reason)
+	}
+}
+
 func testHealthCheck(conn *grpccon.Client) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()
 	return conn.HealthCheck(ctx)
+}
+
+func testAddWhiteList(conn *grpccon.Client) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+	res, err := conn.AddWhiteList(ctx, "192.168.0.0")
+	printResult(res, err)
+	return err
 }
 
 func testWhiteLists(conn *grpccon.Client) (err error) {
