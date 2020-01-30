@@ -19,7 +19,6 @@ func createFilter() *filter {
 }
 
 func (f *filter) CheckLogin(login, password, hostip string) (bool, string, error) {
-
 	var host netsupport.IPAddr
 	if err := host.Parse(hostip); err != nil {
 		return false, "", err

@@ -9,9 +9,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-func grpcTimeout() time.Duration {
-	return time.Second * 2
-}
+const connectTimeout = time.Second * 2
 
 type connector struct {
 	client *grpccon.Client
@@ -32,7 +30,7 @@ func getConnector(host string) (*connector, error) {
 	if err != nil {
 		return nil, err
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), grpcTimeout())
+	ctx, cancel := context.WithTimeout(context.Background(), connectTimeout)
 	c.ctx = ctx
 	c.close = func() {
 		cancel()
@@ -94,6 +92,7 @@ func passCommand(snet string) (err error) {
 	if conn, err = getConnector(""); err != nil {
 		return
 	}
+
 	defer conn.close()
 
 	var resp *grpccon.Response

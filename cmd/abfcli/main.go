@@ -15,6 +15,9 @@ func exitOnError(err error) {
 	}
 }
 
+const useExactParameter1 = 1
+const useExactParameter2 = 2
+
 func main() {
 
 	var cmdUse = &cobra.Command{
@@ -103,6 +106,7 @@ func main() {
 
 	var rootCmd = &cobra.Command{Use: "cli"}
 	rootCmd.AddCommand(cmdUse, cmdReset, cmdPass, cmdUnpass, cmdBlock, cmdUnblock, cmdClear)
+
 	rootCmd.SetHelpCommand(&cobra.Command{
 		Use:    "no-help",
 		Hidden: true,

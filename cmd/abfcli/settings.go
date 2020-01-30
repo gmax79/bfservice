@@ -8,10 +8,8 @@ import (
 	"path/filepath"
 )
 
-var binaryName string
-
-func init() {
-	binaryName = os.Args[0]
+func getBinaryName() string {
+	return os.Args[0]
 }
 
 func settingsFilePath() string {
@@ -37,10 +35,10 @@ func getServiceHost() (string, error) {
 	settingsFile := settingsFilePath()
 	info, err := os.Stat(settingsFile)
 	if os.IsNotExist(err) {
-		return "", fmt.Errorf("Service not selected, type '%s use <abf ip[:port]>' command first", binaryName)
+		return "", fmt.Errorf("service not selected, type '%s use <abf ip[:port]>' command first", getBinaryName())
 	}
 	if info.IsDir() {
-		return "", fmt.Errorf("Fatal error, found dir with settings file path")
+		return "", fmt.Errorf("fatal error, found dir with settings file path")
 	}
 	data, err := ioutil.ReadFile(settingsFilePath())
 	if err != nil {
@@ -48,7 +46,7 @@ func getServiceHost() (string, error) {
 	}
 	path := string(data)
 	if path == "" {
-		return "", fmt.Errorf("Service not set, type '%s use <afb ip[:port]>' first", binaryName)
+		return "", fmt.Errorf("service not set, type '%s use <afb ip[:port]>' first", getBinaryName())
 	}
 	return path, nil
 }

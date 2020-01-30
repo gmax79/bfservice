@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-// AbfGrpcImpl - grpc implementaion struct for service
+// AbfGrpcImpl - grpc implementation struct for service
 type AbfGrpcImpl struct {
 	server    *grpc.Server
 	lasterror error
@@ -28,6 +28,7 @@ func openGRPCServer(host string, zaplog *zap.Logger) (*AbfGrpcImpl, error) {
 	g.logger = zaplog
 	g.hfilter = createFilter()
 	grpcapi.RegisterAntiBruteforceServer(g.server, g)
+
 	go func() {
 		g.lasterror = g.server.Serve(listen)
 	}()
@@ -45,7 +46,6 @@ func (ab *AbfGrpcImpl) HealthCheck(ctx context.Context, in *grpcapi.HealthCheckR
 func (ab *AbfGrpcImpl) Stop(ctx context.Context) {
 	ab.logger.Info("Stropping abf service")
 	ab.server.GracefulStop()
-	//todo use ctx
 }
 
 // CheckLogin - check login for bruteforce state. return true if can login or false for not
@@ -106,7 +106,8 @@ func (ab *AbfGrpcImpl) AddBlackList(ctx context.Context, in *grpcapi.AddBlackLis
 }
 
 // DeleteBlackList - delete ip from blacklist
-func (ab *AbfGrpcImpl) DeleteBlackList(ctx context.Context, in *grpcapi.DeleteBlackListRequest) (*grpcapi.DeleteBlackListResponse, error) {
+func (ab *AbfGrpcImpl) DeleteBlackList(ctx context.Context,
+	in *grpcapi.DeleteBlackListRequest) (*grpcapi.DeleteBlackListResponse, error) {
 	ab.logger.Info("Delete from blacklist", zap.String("mask", in.Ipmask))
 	var out grpcapi.DeleteBlackListResponse
 	var err error

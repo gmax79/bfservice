@@ -27,6 +27,7 @@ func Connect(host string) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	c := &Client{}
 	c.cancel = func() {
 		clientCon.Close()

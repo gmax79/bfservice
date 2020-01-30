@@ -27,7 +27,7 @@ func (m *Subnet) Parse(subnet string) error {
 		}
 	}
 	if err != nil {
-		return fmt.Errorf("It is not correct subnet address: %s %s,", subnet, err.Error())
+		return fmt.Errorf("it is not correct subnet address: %s %s,", subnet, err.Error())
 	}
 	return nil
 }
@@ -41,9 +41,10 @@ var masks = [32]IPAddr{}
 func init() {
 	masks[0] = 0
 	var mask IPAddr = 0x80000000
+
 	for i := 1; i < 32; i++ {
 		masks[i] = masks[i-1] | mask
-		mask = mask >> 1
+		mask >>= 1
 	}
 }
 

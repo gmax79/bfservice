@@ -13,7 +13,7 @@ run: abf
 	cd cmd/abf  && ./abf
 
 clean:
-	rm -f cmd/abg/abf cmd/abfcli/abfcli
+	rm -f cmd/abg/abf cmd/abfcli/abfcli cmd/tests/tests
 
 check:
-	golangci-lint run --enable-all
+	golangci-lint run --enable-all --disable wsl --disable lll --disable gochecknoglobals --disable gochecknoinits --disable gomnd

@@ -14,7 +14,7 @@ import (
 	nlog "github.com/gmax79/bfservice/internal/log"
 )
 
-// RatesAndHostConfig - struct to read config with bruteforce rates and host paramters
+// RatesAndHostConfig - struct to read config with bruteforce rates and host parameters
 type RatesAndHostConfig struct {
 	LoginRate    int    `json:"login_rate"`
 	PasswordRate int    `json:"password_rate"`
@@ -53,7 +53,8 @@ func main() {
 		exitOnError(err)
 	}
 
-	logger.Info("Rates", zap.Int("login", config.LoginRate), zap.Int("password", config.PasswordRate), zap.Int("host", config.IPRate))
+	logger.Info("Rates", zap.Int("login", config.LoginRate),
+		zap.Int("password", config.PasswordRate), zap.Int("host", config.IPRate))
 	grpc, err := openGRPCServer(config.Host, logger)
 	if err != nil {
 		exitOnError(err)
