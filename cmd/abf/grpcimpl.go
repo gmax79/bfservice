@@ -43,7 +43,7 @@ func (ab *AbfGrpcImpl) HealthCheck(ctx context.Context, in *grpcapi.HealthCheckR
 }
 
 // Stop - gracefully stopping grpc server
-func (ab *AbfGrpcImpl) Stop(ctx context.Context) {
+func (ab *AbfGrpcImpl) Stop() {
 	ab.logger.Info("Stropping abf service")
 	ab.server.GracefulStop()
 }

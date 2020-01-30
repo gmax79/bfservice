@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gmax79/bfservice/internal/buckets"
 	"github.com/gmax79/bfservice/internal/netsupport"
 )
 
@@ -8,6 +9,7 @@ import (
 type filter struct {
 	whitelist *netsupport.SubnetsList
 	blacklist *netsupport.SubnetsList
+	counter   *buckets.AttemptsCounter
 }
 
 // createFilter - create instance of filter
@@ -15,6 +17,7 @@ func createFilter() *filter {
 	f := filter{}
 	f.whitelist = netsupport.CreateSubnetsList()
 	f.blacklist = netsupport.CreateSubnetsList()
+	f.counter = buckets.CreateCounter()
 	return &f
 }
 
@@ -29,7 +32,7 @@ func (f *filter) CheckLogin(login, password, hostip string) (bool, string, error
 	if f.whitelist.Check(host) {
 		return true, "passed by whitelist", nil
 	}
-	return true, "buckets not implemented", nil
+	return f.counter.CheckAndCount(login, password, hostip)
 }
 
 func (f *filter) ResetLogin(login, hostip string) (bool, error) {

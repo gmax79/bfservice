@@ -27,10 +27,10 @@ func printResult(r *grpccon.Response, err error) {
 func runTests() (err error) {
 	var conn *grpccon.Client
 	conn, err = grpccon.Connect(host)
-	defer conn.Close()
 	if err != nil {
 		return
 	}
+	defer conn.Close()
 	tests := []func(*grpccon.Client) error{
 		testHealthCheck,
 		testAddWhiteList,

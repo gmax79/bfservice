@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -64,6 +63,6 @@ func main() {
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 	logger.Info("Antibruteforce service started", zap.String("host", config.Host))
 	<-stop
-	grpc.Stop(context.Background())
+	grpc.Stop()
 	logger.Info("Antibruteforce service stopped")
 }
