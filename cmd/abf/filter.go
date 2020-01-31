@@ -13,11 +13,15 @@ type filter struct {
 }
 
 // createFilter - create instance of filter
-func createFilter() *filter {
+func createFilter(config RatesAndHostConfig) *filter {
 	f := filter{}
 	f.whitelist = netsupport.CreateSubnetsList()
 	f.blacklist = netsupport.CreateSubnetsList()
-	f.counter = buckets.CreateCounter()
+	var limits buckets.RatesLimits
+	limits.Login = config.LoginRate
+	limits.Password = config.PasswordRate
+	limits.Host = config.IPRate
+	f.counter = buckets.CreateCounter(limits)
 	return &f
 }
 
@@ -36,7 +40,7 @@ func (f *filter) CheckLogin(login, password, hostip string) (bool, string, error
 }
 
 func (f *filter) ResetLogin(login, hostip string) (bool, error) {
-	return true, nil
+	return f.counter.Reset(login, hostip)
 }
 
 func (f *filter) AddWhiteList(subnetip string) (bool, error) {

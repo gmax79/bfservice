@@ -18,15 +18,15 @@ type AbfGrpcImpl struct {
 }
 
 // openGRPCServer - service grpc interface
-func openGRPCServer(host string, zaplog *zap.Logger) (*AbfGrpcImpl, error) {
-	listen, err := net.Listen("tcp", host)
+func openGRPCServer(config RatesAndHostConfig, zaplog *zap.Logger) (*AbfGrpcImpl, error) {
+	listen, err := net.Listen("tcp", config.Host)
 	if err != nil {
 		return nil, err
 	}
 	g := &AbfGrpcImpl{}
 	g.server = grpc.NewServer()
 	g.logger = zaplog
-	g.hfilter = createFilter()
+	g.hfilter = createFilter(config)
 	grpcapi.RegisterAntiBruteforceServer(g.server, g)
 
 	go func() {

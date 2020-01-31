@@ -54,7 +54,7 @@ func main() {
 
 	logger.Info("Rates", zap.Int("login", config.LoginRate),
 		zap.Int("password", config.PasswordRate), zap.Int("host", config.IPRate))
-	grpc, err := openGRPCServer(config.Host, logger)
+	grpc, err := openGRPCServer(config, logger)
 	if err != nil {
 		exitOnError(err)
 	}
