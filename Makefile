@@ -17,3 +17,7 @@ clean:
 
 check:
 	golangci-lint run --enable-all --disable wsl --disable lll --disable gochecknoglobals --disable gochecknoinits --disable gomnd
+
+test:
+	cd internal/netsupport && go test -v
+	cd internal/buckets && go test -v
