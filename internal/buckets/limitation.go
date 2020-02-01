@@ -40,12 +40,13 @@ func (m *Limitation) Check(item string) (bool, error) {
 	v, ok := m.items[item]
 	if !ok {
 		var err error
-		m.items[item], err = CreateTimeList(m.maxPerItem)
+		v, err = CreateTimeList(m.maxPerItem)
 		if err != nil {
 			return false, err
 		}
+		m.items[item] = v
 	}
-	if v.Push() && v.Diff() > m.timeInterval {
+	if v.Score() && v.Diff() < m.timeInterval {
 		return false, nil
 	}
 	return true, nil

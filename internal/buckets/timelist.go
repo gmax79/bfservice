@@ -10,12 +10,13 @@ type TimeList struct {
 	list []time.Time
 	head int
 	tail int
+	set  bool
 }
 
 // CreateTimeList - create list for calcualate limits per duration
 func CreateTimeList(size int) (*TimeList, error) {
 	if size < 2 {
-		return nil, errors.New("Timelist len can't be less 2")
+		return nil, errors.New("timelist len can't be less 2")
 	}
 	var tl TimeList
 	tl.list = make([]time.Time, size)
@@ -24,19 +25,21 @@ func CreateTimeList(size int) (*TimeList, error) {
 	return &tl, nil
 }
 
-// Push - add now time in list, remove oldest if need
-func (tl *TimeList) Push() bool {
+// Score - count event, add now time in list, remove oldest if need
+func (tl *TimeList) Score() bool {
 	h := tl.head
 	t := tl.tail
 	now := time.Now()
 	incmax := func(val int) int {
-		if val = val + 1; val == len(tl.list) {
+		if val++; val == len(tl.list) {
 			val = 0
 		}
 		return val
 	}
-	if h == t {
+	if !tl.set {
+		tl.set = true
 		tl.list[h] = now
+		return false
 	}
 	h = incmax(h)
 	isfull := h == t
@@ -52,9 +55,6 @@ func (tl *TimeList) Push() bool {
 func (tl *TimeList) Diff() time.Duration {
 	h := tl.head
 	t := tl.tail
-	if h == t {
-		return 0
-	}
 	return tl.list[h].Sub(tl.list[t])
 }
 

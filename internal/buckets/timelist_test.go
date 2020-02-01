@@ -27,24 +27,24 @@ func TestTimeListMaxSize(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for i := 1; i <= 4; i++ {
-		if list.Push() {
+	for i := 1; i <= 5; i++ {
+		if list.Score() {
 			t.Fatal("List not be full")
 		}
 	}
-	if !list.Push() {
+	if !list.Score() {
 		t.Fatal("List must be full")
 	}
 	time.Sleep(time.Second * 2)
 }
 
 func TestTimeListDiff(t *testing.T) {
-	list, err := CreateTimeList(11)
+	list, err := CreateTimeList(10)
 	if err != nil {
 		t.Fatal(err)
 	}
-	for i := 1; i < 11; i++ {
-		if list.Push() {
+	for i := 1; i <= 10; i++ {
+		if list.Score() {
 			t.Fatal("List not be full")
 		}
 		time.Sleep(time.Millisecond * 120)
@@ -59,7 +59,7 @@ func TestTimeListLifeTime(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_ = list.Push()
+	_ = list.Score()
 	time.Sleep(time.Millisecond * 100)
 	if list.Lifetime() <= time.Millisecond*100 {
 		t.Error("Duration can not be less 100 ms")
