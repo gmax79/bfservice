@@ -22,13 +22,16 @@ func CreateLimitation(count int, duration time.Duration) *Limitation {
 	m.timeInterval = duration
 	go func() {
 		// garbage collector
-		m.mutex.Lock()
-		for k, t := range m.items {
-			if t.Lifetime() > m.timeInterval {
-				delete(m.items, k)
+		for {
+			m.mutex.Lock()
+			for k, t := range m.items {
+				d := t.Lifetime()
+				if d > m.timeInterval {
+					delete(m.items, k)
+				}
 			}
+			m.mutex.Unlock()
 		}
-		m.mutex.Unlock()
 	}()
 	return &m
 }
@@ -50,4 +53,11 @@ func (m *Limitation) Check(item string) (bool, error) {
 		return false, nil
 	}
 	return true, nil
+}
+
+// Size - return count of actual elements
+func (m *Limitation) Size() int {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	return len(m.items)
 }

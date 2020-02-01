@@ -62,6 +62,6 @@ func TestTimeListLifeTime(t *testing.T) {
 	_ = list.Score()
 	time.Sleep(time.Millisecond * 100)
 	if list.Lifetime() <= time.Millisecond*100 {
-		t.Error("Duration can not be less 100 ms")
+		t.Error("Lifetime can not be less 100 ms")
 	}
 }
