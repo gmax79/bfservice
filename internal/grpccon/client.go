@@ -15,6 +15,13 @@ type Response struct {
 	Reason string
 }
 
+// State - struct with current settings and state
+type State struct {
+	LoginRate    int
+	PasswordRate int
+	HostRate     int
+}
+
 // Client - client to connect to service
 type Client struct {
 	cancel func()
@@ -140,4 +147,18 @@ func (c *Client) DeleteBlackList(ctx context.Context, ipmask string) (*Response,
 	r.Status = resp.Deleted
 	r.Reason = resp.Reason
 	return &r, nil
+}
+
+// GetState - get current remote server state
+func (c *Client) GetState(ctx context.Context) (*State, error) {
+	var req grpcapi.GetStateRequest
+	resp, err := c.client.GetState(ctx, &req)
+	if err != nil {
+		return nil, err
+	}
+	var s State
+	s.LoginRate = int(resp.LoginRate)
+	s.PasswordRate = int(resp.PasswordRate)
+	s.HostRate = int(resp.HostRate)
+	return &s, nil
 }

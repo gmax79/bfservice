@@ -10,6 +10,7 @@ type filter struct {
 	whitelist *netsupport.SubnetsList
 	blacklist *netsupport.SubnetsList
 	counter   *buckets.AttemptsCounter
+	limits    buckets.RatesLimits
 }
 
 // createFilter - create instance of filter
@@ -17,11 +18,10 @@ func createFilter(config RatesAndHostConfig) *filter {
 	f := filter{}
 	f.whitelist = netsupport.CreateSubnetsList()
 	f.blacklist = netsupport.CreateSubnetsList()
-	var limits buckets.RatesLimits
-	limits.Login = config.LoginRate
-	limits.Password = config.PasswordRate
-	limits.Host = config.IPRate
-	f.counter = buckets.CreateCounter(limits)
+	f.limits.Login = config.LoginRate
+	f.limits.Password = config.PasswordRate
+	f.limits.Host = config.IPRate
+	f.counter = buckets.CreateCounter(f.limits)
 	return &f
 }
 
@@ -83,4 +83,8 @@ func (f *filter) DeleteBlackList(subnetip string) (bool, error) {
 	}
 	deleted := f.blacklist.Delete(snet)
 	return deleted, nil
+}
+
+func (f *filter) GetLimits() buckets.RatesLimits {
+	return f.limits
 }

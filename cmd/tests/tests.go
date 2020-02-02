@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -55,6 +56,13 @@ func check(conn *grpccon.Client, logins, passwords, ipaddr func() string) *check
 	return &result
 }
 
+func reset(conn *grpccon.Client, login, host string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	_, err := conn.ResetLogin(ctx, login, host)
+	return err
+}
+
 func testHealthCheck(conn *grpccon.Client) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
@@ -62,11 +70,26 @@ func testHealthCheck(conn *grpccon.Client) error {
 }
 
 func testLimitationLogin(conn *grpccon.Client) (err error) {
+
+	reset(conn, "login", "192.168.1.1")
+
 	logins := stringGenerator(150, 50, "login")
 	passwords := fromConstGenerator("password", 200)
 	ip := fromConstGenerator("192.16.1.1", 200)
 	res := check(conn, logins, passwords, ip)
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	rates, err := conn.GetState(ctx)
+	if err != nil {
+		return err
+	}
 	fmt.Printf("calls %d, passed login 'login': %d, password 'password': %d\n", res.calls, res.logins["login"], res.passwords["password"])
+	testLoginsRate := res.logins["login"]
+	testPasswordRate := res.passwords["password"]
+	if rates.LoginRate != testLoginsRate || rates.PasswordRate != testPasswordRate {
+		return errors.New("test rates not equal, something wrong")
+	}
 	return res.err
 }
 

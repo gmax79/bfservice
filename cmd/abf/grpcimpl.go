@@ -49,8 +49,7 @@ func (ab *AbfGrpcImpl) Stop() {
 }
 
 // CheckLogin - check login for bruteforce state. return true if can login or false for not
-func (ab *AbfGrpcImpl) CheckLogin(ctx context.Context,
-	in *grpcapi.CheckLoginRequest) (*grpcapi.CheckLoginResponse, error) {
+func (ab *AbfGrpcImpl) CheckLogin(ctx context.Context, in *grpcapi.CheckLoginRequest) (*grpcapi.CheckLoginResponse, error) {
 	var out grpcapi.CheckLoginResponse
 	var err error
 	out.Checked, out.Reason, err = ab.hfilter.CheckLogin(in.Login, in.Password, in.Ip)
@@ -60,7 +59,6 @@ func (ab *AbfGrpcImpl) CheckLogin(ctx context.Context,
 
 // ResetLogin - remove login from internal base (reset bruteforce rate)
 func (ab *AbfGrpcImpl) ResetLogin(ctx context.Context, in *grpcapi.ResetLoginRequest) (*grpcapi.ResetLoginResponse, error) {
-	ab.logger.Info("Reset login", zap.String("login", in.Login), zap.String("ip", in.Ip))
 	var out grpcapi.ResetLoginResponse
 	var err error
 	out.Reseted, err = ab.hfilter.ResetLogin(in.Login, in.Ip)
@@ -116,8 +114,7 @@ func (ab *AbfGrpcImpl) AddBlackList(ctx context.Context, in *grpcapi.AddBlackLis
 }
 
 // DeleteBlackList - delete ip from blacklist
-func (ab *AbfGrpcImpl) DeleteBlackList(ctx context.Context,
-	in *grpcapi.DeleteBlackListRequest) (*grpcapi.DeleteBlackListResponse, error) {
+func (ab *AbfGrpcImpl) DeleteBlackList(ctx context.Context, in *grpcapi.DeleteBlackListRequest) (*grpcapi.DeleteBlackListResponse, error) {
 	ab.logger.Info("Delete from blacklist", zap.String("mask", in.Ipmask))
 	var out grpcapi.DeleteBlackListResponse
 	var err error
@@ -128,4 +125,14 @@ func (ab *AbfGrpcImpl) DeleteBlackList(ctx context.Context,
 		ab.logger.Info("Delete from blacklist", zap.String("mask", in.Ipmask), zap.Bool("was exist", out.Deleted))
 	}
 	return &out, err
+}
+
+// GetState - get current config settings or states of service
+func (ab *AbfGrpcImpl) GetState(ctx context.Context, in *grpcapi.GetStateRequest) (*grpcapi.GetStateResponse, error) {
+	var out grpcapi.GetStateResponse
+	limits := ab.hfilter.GetLimits()
+	out.LoginRate = int32(limits.Login)
+	out.PasswordRate = int32(limits.Password)
+	out.HostRate = int32(limits.Host)
+	return &out, nil
 }

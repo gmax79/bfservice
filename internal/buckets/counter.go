@@ -56,7 +56,7 @@ func (c *AttemptsCounter) CheckAndCount(login, password, hostip string) (bool, s
 
 // Reset - reset login+host from counter buckets
 func (c *AttemptsCounter) Reset(login, hostip string) (bool, error) {
-	c.login.Reset(login)
-	c.host.Reset(hostip)
-	return true, nil
+	resetLogin := c.login.Reset(login)
+	resetHost := c.host.Reset(hostip)
+	return resetLogin || resetHost, nil
 }
