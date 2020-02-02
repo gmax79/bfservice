@@ -54,6 +54,7 @@ func (ab *AbfGrpcImpl) CheckLogin(ctx context.Context,
 	var out grpcapi.CheckLoginResponse
 	var err error
 	out.Checked, out.Reason, err = ab.hfilter.CheckLogin(in.Login, in.Password, in.Ip)
+	// Skip log per call. Main func with expensive rate
 	return &out, err
 }
 
@@ -64,6 +65,11 @@ func (ab *AbfGrpcImpl) ResetLogin(ctx context.Context, in *grpcapi.ResetLoginReq
 	var err error
 	out.Reseted, err = ab.hfilter.ResetLogin(in.Login, in.Ip)
 	if err != nil {
+		ab.logger.Error("Reset login/ip", zap.String("login", in.Login), zap.String("host", in.Ip), zap.Error(err))
+	} else {
+		ab.logger.Info("Reset login/ip", zap.String("login", in.Login), zap.String("host", in.Ip), zap.Bool("was exist", out.Reseted))
+	}
+	if err != nil {
 		ab.logger.Error(err.Error())
 	}
 	return &out, err
@@ -71,24 +77,26 @@ func (ab *AbfGrpcImpl) ResetLogin(ctx context.Context, in *grpcapi.ResetLoginReq
 
 // AddWhiteList - add ip into whitelist
 func (ab *AbfGrpcImpl) AddWhiteList(ctx context.Context, in *grpcapi.AddWhiteListRequest) (*grpcapi.AddWhiteListResponse, error) {
-	ab.logger.Info("Add in whitelist", zap.String("mask", in.Ipmask))
 	var out grpcapi.AddWhiteListResponse
 	var err error
 	out.Added, err = ab.hfilter.AddWhiteList(in.Ipmask)
 	if err != nil {
-		ab.logger.Error(err.Error())
+		ab.logger.Error("Add in whitelist", zap.String("mask", in.Ipmask), zap.Error(err))
+	} else {
+		ab.logger.Info("Add in whitelist", zap.String("mask", in.Ipmask), zap.Bool("already exist", !out.Added))
 	}
 	return &out, err
 }
 
 // DeleteWhiteList - delete ip from whitelist
 func (ab *AbfGrpcImpl) DeleteWhiteList(ctx context.Context, in *grpcapi.DeleteWhiteListRequest) (*grpcapi.DeleteWhiteListResponse, error) {
-	ab.logger.Info("Delete from whitelist", zap.String("mask", in.Ipmask))
 	var out grpcapi.DeleteWhiteListResponse
 	var err error
 	out.Deleted, err = ab.hfilter.DeleteWhiteList(in.Ipmask)
 	if err != nil {
-		ab.logger.Error(err.Error())
+		ab.logger.Error("Delete from whitelist", zap.String("mask", in.Ipmask), zap.Error(err))
+	} else {
+		ab.logger.Info("Delete from whitelist", zap.String("mask", in.Ipmask), zap.Bool("was exist", out.Deleted))
 	}
 	return &out, err
 }
@@ -100,7 +108,9 @@ func (ab *AbfGrpcImpl) AddBlackList(ctx context.Context, in *grpcapi.AddBlackLis
 	var err error
 	out.Added, err = ab.hfilter.AddBlackList(in.Ipmask)
 	if err != nil {
-		ab.logger.Error(err.Error())
+		ab.logger.Error("Add in blacklist", zap.String("mask", in.Ipmask), zap.Error(err))
+	} else {
+		ab.logger.Info("Add in blacklist", zap.String("mask", in.Ipmask), zap.Bool("already exist", !out.Added))
 	}
 	return &out, err
 }
@@ -113,7 +123,9 @@ func (ab *AbfGrpcImpl) DeleteBlackList(ctx context.Context,
 	var err error
 	out.Deleted, err = ab.hfilter.AddBlackList(in.Ipmask)
 	if err != nil {
-		ab.logger.Error(err.Error())
+		ab.logger.Error("Delete from blacklist", zap.String("mask", in.Ipmask), zap.Error(err))
+	} else {
+		ab.logger.Info("Delete from blacklist", zap.String("mask", in.Ipmask), zap.Bool("was exist", out.Deleted))
 	}
 	return &out, err
 }

@@ -14,13 +14,17 @@ func CreateSubnetsList() *SubnetsList {
 }
 
 // Add - add subnet into list
-func (s *SubnetsList) Add(snet Subnet) {
+func (s *SubnetsList) Add(snet Subnet) bool {
+	_, exist := s.list[snet]
 	s.list[snet] = struct{}{}
+	return !exist
 }
 
 // Delete - delete subnet from list
-func (s *SubnetsList) Delete(snet Subnet) {
+func (s *SubnetsList) Delete(snet Subnet) bool {
+	_, exist := s.list[snet]
 	delete(s.list, snet)
+	return exist
 }
 
 // Exist - check subnet existence in list

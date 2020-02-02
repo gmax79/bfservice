@@ -31,6 +31,7 @@ func CreateLimitation(count int, duration time.Duration) *Limitation {
 				}
 			}
 			m.mutex.Unlock()
+			time.Sleep(time.Millisecond * 100)
 		}
 	}()
 	return &m

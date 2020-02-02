@@ -34,7 +34,7 @@ func runTests() (err error) {
 	tests := []func(*grpccon.Client) error{
 		testHealthCheck,
 		testAddWhiteList,
-		//testWhiteLists,
+		testWhiteLists,
 	}
 	for _, t := range tests {
 		if err = t(conn); err != nil {

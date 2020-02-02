@@ -67,7 +67,7 @@ func TestLimitationGC(t *testing.T) {
 		t.Fatal("Limitation must non-blocking")
 	}
 	// wait lifetime,
-	time.Sleep(time.Second)
+	time.Sleep(time.Millisecond * 1100)
 	if l.Size() != 0 {
 		t.Fatal("timelist must be garbaged")
 	}

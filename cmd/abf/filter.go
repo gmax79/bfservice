@@ -48,8 +48,8 @@ func (f *filter) AddWhiteList(subnetip string) (bool, error) {
 	if err := snet.Parse(subnetip); err != nil {
 		return false, err
 	}
-	f.whitelist.Add(snet)
-	return true, nil
+	added := f.whitelist.Add(snet)
+	return added, nil
 }
 
 func (f *filter) DeleteWhiteList(subnetip string) (bool, error) {
@@ -60,8 +60,8 @@ func (f *filter) DeleteWhiteList(subnetip string) (bool, error) {
 	if !f.whitelist.Exist(snet) {
 		return false, nil
 	}
-	f.whitelist.Delete(snet)
-	return true, nil
+	deleted := f.whitelist.Delete(snet)
+	return deleted, nil
 }
 
 func (f *filter) AddBlackList(subnetip string) (bool, error) {
@@ -69,8 +69,8 @@ func (f *filter) AddBlackList(subnetip string) (bool, error) {
 	if err := snet.Parse(subnetip); err != nil {
 		return false, err
 	}
-	f.blacklist.Add(snet)
-	return true, nil
+	added := f.blacklist.Add(snet)
+	return added, nil
 }
 
 func (f *filter) DeleteBlackList(subnetip string) (bool, error) {
@@ -81,6 +81,6 @@ func (f *filter) DeleteBlackList(subnetip string) (bool, error) {
 	if !f.blacklist.Exist(snet) {
 		return false, nil
 	}
-	f.blacklist.Delete(snet)
-	return true, nil
+	deleted := f.blacklist.Delete(snet)
+	return deleted, nil
 }
