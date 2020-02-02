@@ -2,13 +2,36 @@ package main
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/gmax79/bfservice/internal/grpccon"
 )
 
 const timeout = time.Second * 2
+
+var tests = []func(*grpccon.Client) error{
+	testHealthCheck,
+	testLimitationLogin,
+	//testAddWhiteList,
+	//testWhiteLists,
+}
+
+func check(conn *grpccon.Client, logins, passwords, ipaddr func() string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	for login := logins(); login != ""; {
+		for password := passwords(); password != ""; {
+			for ip := ipaddr(); ip != ""; {
+				resp, err := conn.CheckLogin(ctx, login, password, ip)
+				printResult(resp, err)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
+}
 
 func testHealthCheck(conn *grpccon.Client) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -24,6 +47,13 @@ func testAddWhiteList(conn *grpccon.Client) error {
 	return err
 }
 
+func testLimitationLogin(conn *grpccon.Client) (err error) {
+	//logins := []string{"login"}
+	//passwords := []string{"a", "b", "c", "d", "e", "f", "g", "h"}
+	//hosts := []string{"192.168.1.1", "192.168.1.1", "192.168.1.1", "192.168.1.1", "192.168.1.1", "192.168.1.1"}
+	return nil
+}
+
 func testWhiteLists(conn *grpccon.Client) (err error) {
 	var resp *grpccon.Response
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -31,6 +61,6 @@ func testWhiteLists(conn *grpccon.Client) (err error) {
 	if resp, err = conn.CheckLogin(ctx, "login", "password", "100.0.0.0"); err != nil {
 		return
 	}
-	log.Println(*resp)
+	printResult(resp, err)
 	return nil
 }

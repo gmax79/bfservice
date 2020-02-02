@@ -19,12 +19,12 @@ func octToByte(oct string) (byte, bool) {
 	return byte(val), true
 }
 
-func packip(b [4]byte) IPAddr {
+func Packip(b [4]byte) IPAddr {
 	v := binary.BigEndian.Uint32(b[:])
 	return IPAddr(v)
 }
 
-func unpackip(v IPAddr) [4]byte {
+func Unpackip(v IPAddr) [4]byte {
 	b := make([]byte, 4)
 	binary.BigEndian.PutUint32(b, uint32(v))
 	var a [4]byte
@@ -33,7 +33,7 @@ func unpackip(v IPAddr) [4]byte {
 }
 
 func (v *IPAddr) String() string {
-	b := unpackip(*v)
+	b := Unpackip(*v)
 	return fmt.Sprintf("%d.%d.%d.%d", b[0], b[1], b[2], b[3])
 }
 
@@ -50,7 +50,7 @@ func (v *IPAddr) Parse(host string) error {
 		}
 	}
 	if ok {
-		*v = packip(ipvalues)
+		*v = Packip(ipvalues)
 		return nil
 	}
 	return errors.New("It is not correct ipv4 address: " + host)

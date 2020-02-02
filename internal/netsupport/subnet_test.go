@@ -8,7 +8,7 @@ func TestParseSubnet(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if s.address != packip([4]byte{100, 110, 120, 130}) {
+	if s.address != Packip([4]byte{100, 110, 120, 130}) {
 		t.Fatal("Parsed ip not equal template")
 	}
 	if s.mask != 24 {

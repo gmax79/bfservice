@@ -31,11 +31,7 @@ func runTests() (err error) {
 		return
 	}
 	defer conn.Close()
-	tests := []func(*grpccon.Client) error{
-		testHealthCheck,
-		testAddWhiteList,
-		testWhiteLists,
-	}
+	// tests - array from tests.go
 	for _, t := range tests {
 		if err = t(conn); err != nil {
 			return

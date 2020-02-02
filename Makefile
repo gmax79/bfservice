@@ -21,3 +21,4 @@ check:
 test:
 	cd internal/netsupport && go test -v
 	cd internal/buckets && go test -v
+	cd cmd/tests && go test -v

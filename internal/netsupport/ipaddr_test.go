@@ -18,8 +18,8 @@ func TestOctoToByte(t *testing.T) {
 
 func TestPackUnpack(t *testing.T) {
 	b := [4]byte{123, 140, 190, 220}
-	packedip := packip(b)
-	unpackedip := unpackip(packedip)
+	packedip := Packip(b)
+	unpackedip := Unpackip(packedip)
 	if b != unpackedip {
 		t.Fatal("Packip and unpackip working inconsistent")
 	}
@@ -30,7 +30,7 @@ func checkip(sip string, a, b, c, d byte) error {
 	if err := v.Parse(sip); err != nil {
 		return err
 	}
-	unpackedip := unpackip(v)
+	unpackedip := Unpackip(v)
 	if unpackedip[0] == a && unpackedip[1] == b && unpackedip[2] == c && unpackedip[3] == d {
 		return nil
 	}
@@ -47,7 +47,7 @@ func TestParseIP(t *testing.T) {
 	if err := checkip("100.99.98.97", 100, 99, 98, 97); err != nil {
 		t.Fatal(err)
 	}
-	v := packip([4]byte{10, 20, 30, 40})
+	v := Packip([4]byte{10, 20, 30, 40})
 	if v.String() != "10.20.30.40" {
 		t.Fatal("ip incorrect converted into string")
 	}
