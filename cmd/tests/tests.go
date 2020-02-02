@@ -2,8 +2,7 @@ package main
 
 import (
 	"context"
-	"log"
-	"strings"
+	"fmt"
 	"time"
 
 	"github.com/gmax79/bfservice/internal/grpccon"
@@ -18,9 +17,21 @@ var tests = []func(*grpccon.Client) error{
 	//testWhiteLists,
 }
 
-func check(conn *grpccon.Client, logins, passwords, ipaddr func() string) error {
+type checkResult struct {
+	err       error
+	calls     int
+	logins    map[string]int
+	passwords map[string]int
+	hosts     map[string]int
+}
+
+func check(conn *grpccon.Client, logins, passwords, ipaddr func() string) *checkResult {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
+	var result checkResult
+	result.logins = make(map[string]int)
+	result.passwords = make(map[string]int)
+	result.hosts = make(map[string]int)
 	for {
 		login := logins()
 		password := passwords()
@@ -28,20 +39,20 @@ func check(conn *grpccon.Client, logins, passwords, ipaddr func() string) error 
 		if login == "" || password == "" || ip == "" {
 			break
 		}
+		result.calls++
 		resp, err := conn.CheckLogin(ctx, login, password, ip)
 		time.Sleep(time.Millisecond * 5)
-		if resp == nil {
-			log.Println("Error, null response", err)
-			return err
+		if resp == nil || err != nil {
+			result.err = err
+			return &result
 		}
-		report := []string{login, password, ip, resp.Reason}
-		resp.Reason = strings.Join(report, ",")
-		printResult(resp, err)
-		if err != nil {
-			return err
+		if resp.Status {
+			result.logins[login]++
+			result.passwords[password]++
+			result.hosts[host]++
 		}
 	}
-	return nil
+	return &result
 }
 
 func testHealthCheck(conn *grpccon.Client) error {
@@ -54,8 +65,9 @@ func testLimitationLogin(conn *grpccon.Client) (err error) {
 	logins := stringGenerator(150, 50, "login")
 	passwords := fromConstGenerator("password", 200)
 	ip := fromConstGenerator("192.16.1.1", 200)
-	err = check(conn, logins, passwords, ip)
-	return nil
+	res := check(conn, logins, passwords, ip)
+	fmt.Printf("calls %d, passed login 'login': %d, password 'password': %d\n", res.calls, res.logins["login"], res.passwords["password"])
+	return res.err
 }
 
 func testAddWhiteList(conn *grpccon.Client) error {

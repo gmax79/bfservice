@@ -51,7 +51,7 @@ func (c *AttemptsCounter) CheckAndCount(login, password, hostip string) (bool, s
 	if !byhost {
 		return false, "host rates limit", nil
 	}
-	return true, "rates not exceeded", nil
+	return true, "", nil
 }
 
 // Reset - reset login+host from counter buckets
