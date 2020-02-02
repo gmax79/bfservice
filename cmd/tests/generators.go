@@ -3,9 +3,15 @@ package main
 import (
 	"log"
 	"math/rand"
+	"time"
 
 	"github.com/gmax79/bfservice/internal/netsupport"
 )
+
+func init() {
+	now := time.Now()
+	rand.Seed(now.Unix())
+}
 
 func fromArrayGenerator(elements []string) func() string {
 	i := 0
