@@ -48,9 +48,11 @@ func testAddWhiteList(conn *grpccon.Client) error {
 }
 
 func testLimitationLogin(conn *grpccon.Client) (err error) {
-	//logins := []string{"login"}
-	//passwords := []string{"a", "b", "c", "d", "e", "f", "g", "h"}
-	//hosts := []string{"192.168.1.1", "192.168.1.1", "192.168.1.1", "192.168.1.1", "192.168.1.1", "192.168.1.1"}
+
+	logins := stringGenerator(15, 5, "login")
+	passwords := fromConstGenerator("password")
+	ip := fromConstGenerator("192.16.1.1")
+	err = check(conn, logins, passwords, ip)
 	return nil
 }
 

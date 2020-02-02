@@ -7,6 +7,24 @@ import (
 	"github.com/gmax79/bfservice/internal/netsupport"
 )
 
+func fromArrayGenerator(elements []string) func() string {
+	i := 0
+	return func() string {
+		if i < len(elements) {
+			str := elements[i]
+			i++
+			return str
+		}
+		return ""
+	}
+}
+
+func fromConstGenerator(element string) func() string {
+	return func() string {
+		return element
+	}
+}
+
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 func randomString() string {
