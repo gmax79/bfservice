@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/gmax79/bfservice/internal/grpccon"
@@ -19,9 +20,9 @@ var tests = []func(*grpccon.Client) error{
 func check(conn *grpccon.Client, logins, passwords, ipaddr func() string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	for login := logins(); login != ""; {
-		for password := passwords(); password != ""; {
-			for ip := ipaddr(); ip != ""; {
+	for login := logins(); login != ""; login = logins() {
+		for password := passwords(); password != ""; password = passwords() {
+			for ip := ipaddr(); ip != ""; ip = ipaddr() {
 				resp, err := conn.CheckLogin(ctx, login, password, ip)
 				printResult(resp, err)
 				if err != nil {
@@ -30,6 +31,10 @@ func check(conn *grpccon.Client, logins, passwords, ipaddr func() string) error 
 			}
 		}
 	}
+	for login := logins(); login != ""; login = logins() {
+		fmt.Println(login)
+	}
+
 	return nil
 }
 
@@ -48,10 +53,9 @@ func testAddWhiteList(conn *grpccon.Client) error {
 }
 
 func testLimitationLogin(conn *grpccon.Client) (err error) {
-
 	logins := stringGenerator(15, 5, "login")
-	passwords := fromConstGenerator("password")
-	ip := fromConstGenerator("192.16.1.1")
+	passwords := fromConstGenerator("password", 20)
+	ip := fromConstGenerator("192.16.1.1", 20)
 	err = check(conn, logins, passwords, ip)
 	return nil
 }

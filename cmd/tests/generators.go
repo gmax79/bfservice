@@ -25,9 +25,13 @@ func fromArrayGenerator(elements []string) func() string {
 	}
 }
 
-func fromConstGenerator(element string) func() string {
+func fromConstGenerator(element string, count int) func() string {
 	return func() string {
-		return element
+		if count > 0 {
+			count--
+			return element
+		}
+		return ""
 	}
 }
 
