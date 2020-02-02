@@ -1,5 +1,9 @@
 package buckets
 
+import (
+	"time"
+)
+
 // RatesLimits - maximums for rates, after their, check limited
 type RatesLimits struct {
 	Login    int
@@ -9,22 +13,50 @@ type RatesLimits struct {
 
 // AttemptsCounter - struct, which counts login attempts
 type AttemptsCounter struct {
-	limits RatesLimits
+	//limits RatesLimits
+	login    *Limitation
+	password *Limitation
+	host     *Limitation
 }
 
 // CreateCounter - create main object
-func CreateCounter(l RatesLimits) *AttemptsCounter {
+func CreateCounter(rates RatesLimits) *AttemptsCounter {
 	var c AttemptsCounter
-	c.limits = l
+	c.login = CreateLimitation(rates.Login, time.Minute)
+	c.password = CreateLimitation(rates.Password, time.Minute)
+	c.host = CreateLimitation(rates.Host, time.Minute)
 	return &c
 }
 
 // CheckAndCount - main function to count attempts and collect it in buckets
-func (fw *AttemptsCounter) CheckAndCount(login, password, hostip string) (bool, string, error) {
-	return true, "", nil
+func (c *AttemptsCounter) CheckAndCount(login, password, hostip string) (bool, string, error) {
+	bylogin, err := c.login.Check(login)
+	if err != nil {
+		return false, "", err
+	}
+	if !bylogin {
+		return false, "login rates limit", nil
+	}
+	bypassword, err := c.password.Check(password)
+	if err != nil {
+		return false, "", err
+	}
+	if !bypassword {
+		return false, "password rates limit", nil
+	}
+	byhost, err := c.host.Check(hostip)
+	if err != nil {
+		return false, "", err
+	}
+	if !byhost {
+		return false, "host rates limit", nil
+	}
+	return true, "rates not exceeded", nil
 }
 
 // Reset - reset login+host from counter buckets
-func (fw *AttemptsCounter) Reset(login, hostip string) (bool, error) {
-	return false, nil
+func (c *AttemptsCounter) Reset(login, hostip string) (bool, error) {
+	c.login.Reset(login)
+	c.host.Reset(hostip)
+	return true, nil
 }

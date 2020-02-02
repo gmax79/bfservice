@@ -55,6 +55,15 @@ func (m *Limitation) Check(item string) (bool, error) {
 	return true, nil
 }
 
+// Reset - remove item from limitation
+func (m *Limitation) Reset(item string) bool {
+	m.mutex.Lock()
+	_, ok := m.items[item]
+	delete(m.items, item)
+	m.mutex.Unlock()
+	return ok
+}
+
 // Size - return count of actual elements
 func (m *Limitation) Size() int {
 	m.mutex.Lock()
