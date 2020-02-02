@@ -70,11 +70,10 @@ func testHealthCheck(conn *grpccon.Client) error {
 }
 
 func testLimitationLogin(conn *grpccon.Client) (err error) {
-
-	reset(conn, "login", "192.168.1.1")
-
+	reset(conn, "login", "192.168.1.1") // reset blocks for test's login and ip (to repeating tests)
+	randomPassword := randomString()    // use random password, exclude conflicts after restart test (blocking by password)
 	logins := stringGenerator(150, 50, "login")
-	passwords := fromConstGenerator("password", 200)
+	passwords := fromConstGenerator(randomPassword, 200)
 	ip := fromConstGenerator("192.16.1.1", 200)
 	res := check(conn, logins, passwords, ip)
 
@@ -84,11 +83,12 @@ func testLimitationLogin(conn *grpccon.Client) (err error) {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("calls %d, passed login 'login': %d, password 'password': %d\n", res.calls, res.logins["login"], res.passwords["password"])
+	fmt.Printf("limits as settings, calls %d, passed login 'login': %d, password '%s': %d\n",
+		res.calls, res.logins["login"], randomPassword, res.passwords[randomPassword])
 	testLoginsRate := res.logins["login"]
-	testPasswordRate := res.passwords["password"]
+	testPasswordRate := res.passwords[randomPassword]
 	if rates.LoginRate != testLoginsRate || rates.PasswordRate != testPasswordRate {
-		return errors.New("test rates not equal, something wrong")
+		return errors.New("test rates not equal. server not restarted and test parameters already blocked?")
 	}
 	return res.err
 }
