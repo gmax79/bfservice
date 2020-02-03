@@ -13,18 +13,6 @@ func init() {
 	rand.Seed(now.Unix())
 }
 
-func fromArrayGenerator(elements []string) func() string {
-	i := 0
-	return func() string {
-		if i < len(elements) {
-			str := elements[i]
-			i++
-			return str
-		}
-		return ""
-	}
-}
-
 func fromConstGenerator(element string, count int) func() string {
 	return func() string {
 		if count > 0 {
