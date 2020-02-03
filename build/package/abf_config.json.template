@@ -1,0 +1,10 @@
+{
+    "login_rate": $ABF_LOGIN_RATE,
+    "password_rate": $ABF_PASSWORD_RATE,
+    "ip_rate": $ABF_IP_RATE,
+    "host": "$ABF_HOST",
+    "log_file" : "$ABF_LOG_FILE",
+    "log_level": "$ABF_LOG_LEVEL",
+    "log_encoding": "$ABF_LOG_ENCODING",
+    "log_debug": 0
+}

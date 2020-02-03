@@ -9,7 +9,7 @@ cli: abfcli
 
 all: abf abfcli
 
-run: abf
+service: abf
 	cd cmd/abf  && ./abf
 
 clean:
@@ -19,6 +19,13 @@ check:
 	golangci-lint run --enable-all --disable wsl --disable lll --disable gochecknoglobals --disable gochecknoinits --disable gomnd
 
 test:
-	cd internal/netsupport && go test -v
-	cd internal/buckets && go test -v
-	cd cmd/tests && go test -v
+	cd internal/netsupport && go test -v -race
+	cd internal/buckets && go test -v -race
+	cd cmd/tests && go test -v -race
+
+docker:
+	docker build -f build/package/abf.dockerfile -t abf . \
+	&& docker tag abf gmax079/practice:abf
+
+run:
+	cd deployments && docker-compose -f docker-compose.yml up
