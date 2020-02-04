@@ -9,7 +9,7 @@ import (
 	"github.com/gmax79/bfservice/internal/grpccon"
 )
 
-const timeout = time.Second * 10
+const timeout = time.Second * 15
 
 var tests = []func(*grpccon.Client) error{
 	testHealthCheck,

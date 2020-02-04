@@ -13,22 +13,24 @@ up: abf
 check:
 	golangci-lint run --enable-all --disable wsl --disable lll --disable gochecknoglobals --disable gochecknoinits --disable gomnd
 
-test: docker-tests
+test: docker docker-tests
 	cd internal/netsupport && go test -v -race
 	cd internal/buckets && go test -v -race
 	cd cmd/tests && go test -v -race
-	docker run --rm tests
+	cd deployments && docker-compose -f docker-compose.yml up -d
+	docker run --network host --rm abftests
 	docker rmi -f tests
+	cd deployments && docker-compose -f docker-compose.yml down
 
 docker:
-	docker build -f build/package/abf.dockerfile -t abf . \
-	&& docker tag abf gmax079/practice:abf
+	docker build -f build/package/abf.dockerfile -t abf .
 
 docker-tests:
-	docker build -f build/package/abf_tests.dockerfile -t abftests .
+	docker build -f build/package/tests.dockerfile -t abftests .
 
 docker-push:
-	docker push gmax079/practice:abf
+	docker tag abf gmax079/practice:abf /
+	&& docker push gmax079/practice:abf
 
 docker-clean:
 	docker rmi -f tests abf gmax079/practice:abf
