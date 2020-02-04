@@ -15,8 +15,9 @@ var tests = []func(*grpccon.Client) error{
 	testHealthCheck,
 	testLimitationLoginPassword,
 	testLimitationHost,
-	//testAddWhiteList,
-	//testWhiteLists,
+	testWhiteList,
+	testLimitationHost,
+	testLimitationLoginPassword,
 }
 
 type checkResult struct {
@@ -71,6 +72,7 @@ func testHealthCheck(conn *grpccon.Client) error {
 }
 
 func testLimitationLoginPassword(conn *grpccon.Client) error {
+	fmt.Println("testLimitationLoginPassword")
 	err := reset(conn, "login", "192.168.1.1") // reset blocks for test's login and ip (to repeating tests)
 	if err != nil {
 		return err
@@ -78,7 +80,7 @@ func testLimitationLoginPassword(conn *grpccon.Client) error {
 	randomPassword := randomString() // use random password, exclude conflicts after restart test (blocking by password)
 	logins := stringGenerator(150, 50, "login")
 	passwords := fromConstGenerator(randomPassword, 200)
-	ip := fromConstGenerator("192.16.1.1", 200)
+	ip := fromConstGenerator("192.168.1.1", 200)
 	res := check(conn, logins, passwords, ip)
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -89,15 +91,18 @@ func testLimitationLoginPassword(conn *grpccon.Client) error {
 	}
 	testLoginsRate := res.logins["login"]
 	testPasswordRate := res.passwords[randomPassword]
-	fmt.Printf("limits as settings, calls %d, passed login 'login': %d, password '%s': %d\n",
+	fmt.Printf("limits result: calls %d, passed login 'login': %d, password '%s': %d\n",
 		res.calls, testLoginsRate, randomPassword, testPasswordRate)
 	if rates.LoginRate != testLoginsRate || rates.PasswordRate != testPasswordRate {
 		return errors.New("testLimitationLoginPassword failed")
+	} else {
+		fmt.Println("pass: limits as service settings")
 	}
 	return res.err
 }
 
 func testLimitationHost(conn *grpccon.Client) error {
+	fmt.Println("testLimitationHost")
 	host := "192.168.2.1"
 	err := reset(conn, "", host)
 	if err != nil {
@@ -114,28 +119,47 @@ func testLimitationHost(conn *grpccon.Client) error {
 		return err
 	}
 	testHostRate := res.hosts[host]
-	fmt.Printf("limits as settings, calls %d, passed ip '%s': %d\n", res.calls, host, testHostRate)
+	fmt.Printf("limits result: calls %d, passed ip '%s': %d\n", res.calls, host, testHostRate)
 	if rates.HostRate != testHostRate {
 		return errors.New("testLimitationHost failed")
+	} else {
+		fmt.Println("pass: limits as service settings")
 	}
 	return res.err
 }
 
-func testAddWhiteList(conn *grpccon.Client) error {
+func testWhiteList(conn *grpccon.Client) error {
+	fmt.Println("testWhiteList")
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	res, err := conn.AddWhiteList(ctx, "192.168.0.0")
-	printResult(res, err)
-	return err
-}
-
-func testWhiteLists(conn *grpccon.Client) (err error) {
-	var resp *grpccon.Response
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-	if resp, err = conn.CheckLogin(ctx, "login", "password", "100.0.0.0"); err != nil {
-		return
+	result, err := conn.AddWhiteList(ctx, host)
+	printResult(result, err)
+	if err != nil {
+		return err
 	}
-	printResult(resp, err)
-	return nil
+
+	ctx2, cancel2 := context.WithTimeout(context.Background(), timeout)
+	defer cancel2()
+	rates, err := conn.GetState(ctx2)
+	if err != nil {
+		return err
+	}
+
+	const host = "192.168.3.1"
+	hostCalls := rates.HostRate + 100
+
+	logins := randomString
+	passwords := randomString
+	ip := ipGenerator(200, "192.168.3.0", hostCalls, host)
+	res := check(conn, logins, passwords, ip)
+
+	testIPRate := res.hosts[host]
+	fmt.Printf("limits result: calls %d, passed ip '%s': %d\n", res.calls, host, testIPRate)
+	if hostCalls != testIPRate {
+		return errors.New("testWhiteList failed")
+	} else {
+		fmt.Println("pass: limits as service settings")
+	}
+
+	return res.err
 }
