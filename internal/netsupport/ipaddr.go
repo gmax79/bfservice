@@ -19,11 +19,13 @@ func octToByte(oct string) (byte, bool) {
 	return byte(val), true
 }
 
+// Packip - convert array of bytes into type IPAddr
 func Packip(b [4]byte) IPAddr {
 	v := binary.BigEndian.Uint32(b[:])
 	return IPAddr(v)
 }
 
+// Unpackip - convert IPAddr type into bytes array
 func Unpackip(v IPAddr) [4]byte {
 	b := make([]byte, 4)
 	binary.BigEndian.PutUint32(b, uint32(v))

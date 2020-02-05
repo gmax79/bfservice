@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gmax79/bfservice/internal/buckets"
 	"github.com/gmax79/bfservice/internal/netsupport"
+	"github.com/gmax79/bfservice/internal/storage"
 )
 
 // filter - main objects to filtering login attempts
@@ -11,10 +12,15 @@ type filter struct {
 	blacklist *netsupport.SubnetsList
 	counter   *buckets.AttemptsCounter
 	limits    buckets.RatesLimits
+	stor      *storage.Provider
 }
 
 // createFilter - create instance of filter
-func createFilter(config RatesAndHostConfig) *filter {
+func createFilter(config RatesAndHostConfig) (*filter, error) {
+	stor, err := storage.ConnectRedis(config.RedisHost, config.RedisPassword, config.RedisDB)
+	if err != nil {
+		return nil, err
+	}
 	f := filter{}
 	f.whitelist = netsupport.CreateSubnetsList()
 	f.blacklist = netsupport.CreateSubnetsList()
@@ -22,7 +28,8 @@ func createFilter(config RatesAndHostConfig) *filter {
 	f.limits.Password = config.PasswordRate
 	f.limits.Host = config.IPRate
 	f.counter = buckets.CreateCounter(f.limits)
-	return &f
+	f.stor = stor
+	return &f, nil
 }
 
 func (f *filter) CheckLogin(login, password, hostip string) (bool, string, error) {

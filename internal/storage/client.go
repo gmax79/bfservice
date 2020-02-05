@@ -2,18 +2,27 @@ package storage
 
 import "github.com/go-redis/redis/v7"
 
-type provider struct {
+// Provider - load/save settings in extenal storage
+type Provider interface {
+	CreateList(id string) (ListProvider, error)
+}
+
+type redisProvider struct {
 	rc *redis.Client
 }
 
-func connect(host, password string, db int) (*provider, error) {
-	var p provider
+// ConnectRedis - connect to stograge
+func ConnectRedis(host, password string, db int) (Provider, error) {
+	var p redisProvider
 	options := redis.Options{
 		Addr:     host,
 		Password: password,
-		DB:       db
+		DB:       db,
 	}
-	p.client = redis.NewClient(&options)
-	
+	p.rc = redis.NewClient(&options)
+	return &p, nil
+}
 
+func (p *redisProvider) CreateList(id string) (ListProvider, error) {
+	return createRedisListProvider(p.rc, id)
 }

@@ -23,12 +23,15 @@ func openGRPCServer(config RatesAndHostConfig, zaplog *zap.Logger) (*AbfGrpcImpl
 	if err != nil {
 		return nil, err
 	}
+	filter, err := createFilter(config)
+	if err != nil {
+		return nil, err
+	}
 	g := &AbfGrpcImpl{}
 	g.server = grpc.NewServer()
 	g.logger = zaplog
-	g.hfilter = createFilter(config)
+	g.hfilter = filter
 	grpcapi.RegisterAntiBruteforceServer(g.server, g)
-
 	go func() {
 		g.lasterror = g.server.Serve(listen)
 	}()

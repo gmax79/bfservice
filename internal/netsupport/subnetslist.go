@@ -1,14 +1,18 @@
 package netsupport
 
+import "github.com/gmax79/bfservice/internal/storage"
+
 // SubnetsList - object, to filtering hosts by some rules
 type SubnetsList struct {
 	list map[Subnet]struct{}
+	prov storage.ListProvider
 }
 
 // CreateSubnetsList - creates hosts/subnets list
-func CreateSubnetsList() *SubnetsList {
+func CreateSubnetsList(p storage.ListProvider) *SubnetsList {
 	f := &SubnetsList{
 		list: make(map[Subnet]struct{}),
+		prov: p,
 	}
 	return f
 }
