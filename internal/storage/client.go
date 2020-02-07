@@ -4,7 +4,8 @@ import "github.com/go-redis/redis/v7"
 
 // Provider - load/save settings in extenal storage
 type Provider interface {
-	CreateList(id string) (ListProvider, error)
+	CreateSet(id string) (SetProvider, error)
+	Close() error
 }
 
 type redisProvider struct {
@@ -20,9 +21,14 @@ func ConnectRedis(host, password string, db int) (Provider, error) {
 		DB:       db,
 	}
 	p.rc = redis.NewClient(&options)
-	return &p, nil
+	status := p.rc.Ping()
+	return &p, status.Err()
 }
 
-func (p *redisProvider) CreateList(id string) (ListProvider, error) {
-	return createRedisListProvider(p.rc, id)
+func (p *redisProvider) CreateSet(id string) (SetProvider, error) {
+	return createRedisSetProvider(p.rc, id)
+}
+
+func (p *redisProvider) Close() error {
+	return p.rc.Close()
 }

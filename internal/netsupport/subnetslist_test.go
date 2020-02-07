@@ -4,6 +4,8 @@ import (
 	"log"
 	"strconv"
 	"testing"
+
+	"github.com/gmax79/bfservice/internal/storage"
 )
 
 func makesubnet(s string) Subnet {
@@ -15,8 +17,27 @@ func makesubnet(s string) Subnet {
 	return snet
 }
 
+type testsSetProvider struct {
+}
+
+func (p *testsSetProvider) Add(item string) (bool, error) {
+	return true, nil
+}
+func (p *testsSetProvider) Delete(item string) (bool, error) {
+	return true, nil
+}
+func (p *testsSetProvider) Iterator() (storage.StringIterator, error) {
+	return func() (string, bool) {
+		return "", false
+	}, nil
+}
+
 func TestSubnetsListInList(t *testing.T) {
-	s := CreateSubnetsList()
+	var p testsSetProvider
+	s, err := CreateSubnetsList(&p)
+	if err != nil {
+		t.Fatal(err)
+	}
 	s.Add(makesubnet("192.168.1.0/24"))
 	s.Add(makesubnet("10.0.0.0/8"))
 

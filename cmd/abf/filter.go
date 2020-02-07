@@ -12,7 +12,7 @@ type filter struct {
 	blacklist *netsupport.SubnetsList
 	counter   *buckets.AttemptsCounter
 	limits    buckets.RatesLimits
-	stor      *storage.Provider
+	stor      storage.Provider
 }
 
 // createFilter - create instance of filter
@@ -21,14 +21,28 @@ func createFilter(config RatesAndHostConfig) (*filter, error) {
 	if err != nil {
 		return nil, err
 	}
-	f := filter{}
-	f.whitelist = netsupport.CreateSubnetsList()
-	f.blacklist = netsupport.CreateSubnetsList()
+	wlProvider, err := stor.CreateSet("abfWhitelist")
+	if err != nil {
+		return nil, err
+	}
+	blProvider, err := stor.CreateSet("abdBlacklist")
+	if err != nil {
+		return nil, err
+	}
+	var f filter
+	f.stor = stor
+	f.whitelist, err = netsupport.CreateSubnetsList(wlProvider)
+	if err != nil {
+		return nil, err
+	}
+	f.blacklist, err = netsupport.CreateSubnetsList(blProvider)
+	if err != nil {
+		return nil, err
+	}
 	f.limits.Login = config.LoginRate
 	f.limits.Password = config.PasswordRate
 	f.limits.Host = config.IPRate
 	f.counter = buckets.CreateCounter(f.limits)
-	f.stor = stor
 	return &f, nil
 }
 
@@ -55,8 +69,8 @@ func (f *filter) AddWhiteList(subnetip string) (bool, error) {
 	if err := snet.Parse(subnetip); err != nil {
 		return false, err
 	}
-	added := f.whitelist.Add(snet)
-	return added, nil
+	added, err := f.whitelist.Add(snet)
+	return added, err
 }
 
 func (f *filter) DeleteWhiteList(subnetip string) (bool, error) {
@@ -64,11 +78,8 @@ func (f *filter) DeleteWhiteList(subnetip string) (bool, error) {
 	if err := snet.Parse(subnetip); err != nil {
 		return false, err
 	}
-	if !f.whitelist.Exist(snet) {
-		return false, nil
-	}
-	deleted := f.whitelist.Delete(snet)
-	return deleted, nil
+	deleted, err := f.whitelist.Delete(snet)
+	return deleted, err
 }
 
 func (f *filter) AddBlackList(subnetip string) (bool, error) {
@@ -76,8 +87,8 @@ func (f *filter) AddBlackList(subnetip string) (bool, error) {
 	if err := snet.Parse(subnetip); err != nil {
 		return false, err
 	}
-	added := f.blacklist.Add(snet)
-	return added, nil
+	added, err := f.blacklist.Add(snet)
+	return added, err
 }
 
 func (f *filter) DeleteBlackList(subnetip string) (bool, error) {
@@ -85,13 +96,14 @@ func (f *filter) DeleteBlackList(subnetip string) (bool, error) {
 	if err := snet.Parse(subnetip); err != nil {
 		return false, err
 	}
-	if !f.blacklist.Exist(snet) {
-		return false, nil
-	}
-	deleted := f.blacklist.Delete(snet)
-	return deleted, nil
+	deleted, err := f.blacklist.Delete(snet)
+	return deleted, err
 }
 
 func (f *filter) GetLimits() buckets.RatesLimits {
 	return f.limits
+}
+
+func (f *filter) Close() error {
+	return f.stor.Close()
 }
