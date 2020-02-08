@@ -16,8 +16,8 @@ var tests = []func(*grpccon.Client) error{
 	testLimitationLoginPassword,
 	testLimitationHost,
 	testWhiteList,
-	testLimitationHost,
-	testLimitationLoginPassword,
+	//testLimitationHost,
+	//testLimitationLoginPassword,
 }
 
 type checkResult struct {
