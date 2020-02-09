@@ -17,17 +17,18 @@ type Subnet struct {
 func (m *Subnet) Parse(subnet string) error {
 	var err error
 	parts := strings.Split(subnet, "/")
-	if len(parts) == 2 {
-		err = m.address.Parse(parts[0])
-		if err == nil {
-			m.mask, err = strconv.Atoi(parts[1])
-			if m.mask < 0 || m.mask > 32 {
-				err = errors.New("Invalid mask: " + parts[1])
-			}
+	if len(parts) != 2 {
+		return fmt.Errorf("incorrect subnet address, missed mask: %s", subnet)
+	}
+	err = m.address.Parse(parts[0])
+	if err == nil {
+		m.mask, err = strconv.Atoi(parts[1])
+		if m.mask < 0 || m.mask > 32 {
+			err = errors.New("Invalid mask: " + parts[1])
 		}
 	}
 	if err != nil {
-		return fmt.Errorf("it is not correct subnet address: %s %s,", subnet, err.Error())
+		return fmt.Errorf("incorrect subnet address: %s %s,", subnet, err.Error())
 	}
 	return nil
 }

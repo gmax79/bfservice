@@ -2,6 +2,13 @@ package netsupport
 
 import "testing"
 
+func TestSimpleIP(t *testing.T) {
+	var s Subnet
+	if s.Parse("1.2.3.4") == nil {
+		t.Fatal("Subnet requirements mask")
+	}
+}
+
 func TestParseSubnet(t *testing.T) {
 	var s Subnet
 	err := s.Parse("100.110.120.130/24")
