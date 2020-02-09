@@ -7,7 +7,7 @@ func TestSimpleIP(t *testing.T) {
 	if err := s.Parse("1.2.3.4"); err != nil {
 		t.Fatal(err)
 	}
-	if s.mask != 32 {
+	if s.mask != 31 {
 		t.Fatal("Invalid initialization subnet by ip without mask")
 	}
 }

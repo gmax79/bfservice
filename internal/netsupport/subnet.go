@@ -21,7 +21,7 @@ func (m *Subnet) Parse(subnet string) error {
 	case 1:
 		err = m.address.Parse(parts[0])
 		if err == nil {
-			m.mask = 32
+			m.mask = 31
 		}
 	case 2:
 		err = m.address.Parse(parts[0])

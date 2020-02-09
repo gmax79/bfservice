@@ -18,12 +18,12 @@ func main() {
 
 func printResult(r *grpccon.Response, err error) {
 	if err != nil {
-		log.Println("Error", err.Error(), r.Reason)
+		log.Println("grpc response: error", err.Error(), r.Reason)
 	} else {
 		if r.Status {
-			log.Println("Pass", r.Reason)
+			log.Println("grpc response: pass", r.Reason)
 		} else {
-			log.Println("Blocked", r.Reason)
+			log.Println("grpc response: blocked", r.Reason)
 		}
 	}
 }

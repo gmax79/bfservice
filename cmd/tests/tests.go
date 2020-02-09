@@ -130,6 +130,7 @@ func testLimitationHost(conn *grpccon.Client) error {
 
 func testWhiteList(conn *grpccon.Client) error {
 	fmt.Println("testWhiteList")
+	const host = "192.168.3.1"
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	result, err := conn.AddWhiteList(ctx, host)
@@ -145,7 +146,6 @@ func testWhiteList(conn *grpccon.Client) error {
 		return err
 	}
 
-	const host = "192.168.3.1"
 	hostCalls := rates.HostRate + 100
 
 	logins := randomString
@@ -155,7 +155,7 @@ func testWhiteList(conn *grpccon.Client) error {
 
 	testIPRate := res.hosts[host]
 	fmt.Printf("limits result: calls %d, passed ip '%s': %d\n", res.calls, host, testIPRate)
-	if hostCalls != testIPRate {
+	if rates.HostRate != testIPRate {
 		return errors.New("testWhiteList failed")
 	} else {
 		fmt.Println("pass: limits as service settings")
