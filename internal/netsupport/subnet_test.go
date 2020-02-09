@@ -4,8 +4,11 @@ import "testing"
 
 func TestSimpleIP(t *testing.T) {
 	var s Subnet
-	if s.Parse("1.2.3.4") == nil {
-		t.Fatal("Subnet requirements mask")
+	if err := s.Parse("1.2.3.4"); err != nil {
+		t.Fatal(err)
+	}
+	if s.mask != 32 {
+		t.Fatal("Invalid initialization subnet by ip without mask")
 	}
 }
 
