@@ -1,4 +1,4 @@
-package buckets
+package ratelimit
 
 import (
 	"time"
