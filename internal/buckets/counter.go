@@ -13,7 +13,6 @@ type RatesLimits struct {
 
 // AttemptsCounter - struct, which counts login attempts
 type AttemptsCounter struct {
-	//limits RatesLimits
 	login    *Limitation
 	password *Limitation
 	host     *Limitation

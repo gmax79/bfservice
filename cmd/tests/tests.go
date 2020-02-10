@@ -133,6 +133,7 @@ func testWhiteList(conn *grpccon.Client) error {
 	const host = "192.168.3.1"
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
+	fmt.Println("Add into whitelist", host)
 	result, err := conn.AddWhiteList(ctx, host)
 	printResult(result, err)
 	if err != nil {

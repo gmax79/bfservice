@@ -21,9 +21,9 @@ func printResult(r *grpccon.Response, err error) {
 		log.Println("grpc response: error", err.Error(), r.Reason)
 	} else {
 		if r.Status {
-			log.Println("grpc response: pass", r.Reason)
+			log.Println("grpc response: success", r.Reason)
 		} else {
-			log.Println("grpc response: blocked", r.Reason)
+			log.Println("grpc response: failed", r.Reason)
 		}
 	}
 }
