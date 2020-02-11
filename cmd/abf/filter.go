@@ -2,9 +2,11 @@ package main
 
 import (
 	"sync"
+	"time"
 
 	"github.com/gmax79/bfservice/internal/netsupport"
 	"github.com/gmax79/bfservice/internal/ratelimit"
+	"github.com/jdeal-mediamath/clockwork"
 )
 
 // filter - main objects to filtering login attempts
@@ -24,9 +26,12 @@ func createFilter(config RatesAndHostConfig) *filter {
 	f.wmx = &sync.Mutex{}
 	f.bmx = &sync.Mutex{}
 	f.limits.Login = config.LoginRate
+	f.limits.LoginDuration = time.Minute
 	f.limits.Password = config.PasswordRate
+	f.limits.PasswordDuration = time.Minute
 	f.limits.Host = config.IPRate
-	f.counter = ratelimit.CreateCounter(f.limits)
+	f.limits.HostDuration = time.Minute
+	f.counter = ratelimit.CreateCounter(f.limits, clockwork.NewRealClock())
 	return &f
 }
 

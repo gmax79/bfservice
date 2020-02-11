@@ -6,18 +6,18 @@ import (
 )
 
 func TestCreateInvalidBusket(t *testing.T) {
-	_, err := CreateBusket(0, time.Second)
+	_, err := CreateBucket(0, time.Second)
 	if err == nil {
 		t.Fatal("Basket cant be empty")
 	}
-	_, err = CreateBusket(5, time.Second*0)
+	_, err = CreateBucket(5, time.Second*0)
 	if err == nil {
 		t.Fatal("Basket cant be 0 rated")
 	}
 }
 
 func TestBusketMaxSize(t *testing.T) {
-	busket, err := CreateBusket(10, time.Second)
+	busket, err := CreateBucket(10, time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,7 +32,7 @@ func TestBusketMaxSize(t *testing.T) {
 }
 
 func TestBusketRating(t *testing.T) {
-	busket, err := CreateBusket(10, time.Second)
+	busket, err := CreateBucket(10, time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,7 +51,7 @@ func TestBusketRating(t *testing.T) {
 }
 
 func TestBusketIdleTime(t *testing.T) {
-	list, err := CreateBusket(10, time.Millisecond*50)
+	list, err := CreateBucket(10, time.Millisecond*50)
 	if err != nil {
 		t.Fatal(err)
 	}

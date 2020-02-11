@@ -2,13 +2,18 @@ package ratelimit
 
 import (
 	"time"
+
+	"github.com/jdeal-mediamath/clockwork"
 )
 
 // Config - maximums for rates, after their, check limited
 type Config struct {
-	Login    int
-	Password int
-	Host     int
+	Login            int
+	LoginDuration    time.Duration
+	Password         int
+	PasswordDuration time.Duration
+	Host             int
+	HostDuration     time.Duration
 }
 
 // Counter - object, which counts login attempts
@@ -16,14 +21,16 @@ type Counter struct {
 	login    *Limitation
 	password *Limitation
 	host     *Limitation
+	clock    clockwork.Clock
 }
 
 // CreateCounter - create main object
-func CreateCounter(rates Config) *Counter {
+func CreateCounter(rates Config, clock clockwork.Clock) *Counter {
 	var c Counter
-	c.login = CreateLimitation(rates.Login, time.Minute)
-	c.password = CreateLimitation(rates.Password, time.Minute)
-	c.host = CreateLimitation(rates.Host, time.Minute)
+	c.login = CreateLimitation(rates.Login, rates.LoginDuration)
+	c.password = CreateLimitation(rates.Password, rates.PasswordDuration)
+	c.host = CreateLimitation(rates.Host, rates.HostDuration)
+	c.clock = clock
 	return &c
 }
 
