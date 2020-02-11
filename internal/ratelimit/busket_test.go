@@ -5,20 +5,14 @@ import (
 	"time"
 )
 
-func TestCreateTimeList(t *testing.T) {
-	_, err := CreateTimeList(1)
+func TestCreateInvalidBusket(t *testing.T) {
+	_, err := CreateBusket(0, time.Second)
 	if err == nil {
-		t.Fatal("List cant be len less 2")
+		t.Fatal("Basket cant be empty")
 	}
-}
-
-func TestLenEmptyTimeList(t *testing.T) {
-	list, err := CreateTimeList(2)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if list.Diff() != 0 {
-		t.Fatal("Empty list must be len 0")
+	_, err = CreateBusket(5, time.Second*0)
+	if err == nil {
+		t.Fatal("Basket cant be 0 rated")
 	}
 }
 

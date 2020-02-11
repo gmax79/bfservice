@@ -3,8 +3,8 @@ package main
 import (
 	"sync"
 
-	"github.com/gmax79/bfservice/internal/buckets"
 	"github.com/gmax79/bfservice/internal/netsupport"
+	"github.com/gmax79/bfservice/internal/ratelimit"
 )
 
 // filter - main objects to filtering login attempts
@@ -12,8 +12,8 @@ type filter struct {
 	whitelist *netsupport.SubnetsList
 	blacklist *netsupport.SubnetsList
 	wmx, bmx  *sync.Mutex
-	counter   *buckets.AttemptsCounter
-	limits    buckets.RatesLimits
+	counter   *ratelimit.Counter
+	limits    ratelimit.Config
 }
 
 // createFilter - create instance of filter
@@ -26,7 +26,7 @@ func createFilter(config RatesAndHostConfig) *filter {
 	f.limits.Login = config.LoginRate
 	f.limits.Password = config.PasswordRate
 	f.limits.Host = config.IPRate
-	f.counter = buckets.CreateCounter(f.limits)
+	f.counter = ratelimit.CreateCounter(f.limits)
 	return &f
 }
 
@@ -104,6 +104,6 @@ func (f *filter) DeleteBlackList(subnetip string) (bool, error) {
 	return deleted, nil
 }
 
-func (f *filter) GetLimits() buckets.RatesLimits {
+func (f *filter) GetLimits() ratelimit.Config {
 	return f.limits
 }
