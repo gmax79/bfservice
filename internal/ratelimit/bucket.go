@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-// Busket - main object to implentation rate limit algorithm
-type Busket struct {
+// Bucket - main object to implentation rate limit algorithm
+type Bucket struct {
 	capacity         int
 	fill             int
 	lastDrained      time.Time
@@ -15,15 +15,15 @@ type Busket struct {
 	lastDrainResidue float64
 }
 
-// CreateBusket - create object for limit per duration
-func CreateBusket(size int, rate time.Duration) (*Busket, error) {
+// CreateBucket - create object for limit per duration
+func CreateBucket(size int, rate time.Duration) (*Bucket, error) {
 	if size <= 0 {
 		return nil, errors.New("invalid size parameter")
 	}
 	if rate <= 0 {
 		return nil, errors.New("invalid rate parameter")
 	}
-	var b Busket
+	var b Bucket
 	b.capacity = size
 	b.fill = 0
 	b.lastDrained = time.Now()
@@ -33,7 +33,7 @@ func CreateBusket(size int, rate time.Duration) (*Busket, error) {
 }
 
 // Score - count event, add now time in list, remove oldest if need
-func (b *Busket) Score() bool {
+func (b *Bucket) Score() bool {
 	b.drain()
 	if b.fill == b.capacity {
 		return false // busket empty
@@ -43,7 +43,7 @@ func (b *Busket) Score() bool {
 }
 
 // drain - remove fill level from busket with configured rate
-func (b *Busket) drain() {
+func (b *Bucket) drain() {
 	now := time.Now()
 	timeoutms := now.Sub(b.lastDrained).Milliseconds()
 	drainedCount := b.lastDrainResidue + float64(timeoutms)/b.ratems
@@ -59,7 +59,7 @@ func (b *Busket) drain() {
 }
 
 // Idletime - calculate idle time for gc
-func (b *Busket) Idletime() time.Duration {
+func (b *Bucket) Idletime() time.Duration {
 	now := time.Now()
 	return now.Sub(b.lastDrained)
 }

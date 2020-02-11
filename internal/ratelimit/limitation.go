@@ -7,7 +7,7 @@ import (
 
 // Limitation - object to limits elements check per size/minute
 type Limitation struct {
-	items        map[string]*Busket
+	items        map[string]*Bucket
 	maxPerItem   int
 	mutex        *sync.Mutex
 	timeInterval time.Duration
@@ -16,7 +16,7 @@ type Limitation struct {
 // CreateLimitation - create limitation map - count per duration
 func CreateLimitation(count int, duration time.Duration) *Limitation {
 	var m Limitation
-	m.items = make(map[string]*Busket)
+	m.items = make(map[string]*Bucket)
 	m.mutex = &sync.Mutex{}
 	m.maxPerItem = count
 	m.timeInterval = duration
@@ -44,7 +44,7 @@ func (m *Limitation) Check(item string) (bool, error) {
 	v, ok := m.items[item]
 	if !ok {
 		var err error
-		v, err = CreateBusket(m.maxPerItem, m.timeInterval)
+		v, err = CreateBucket(m.maxPerItem, m.timeInterval)
 		if err != nil {
 			return false, err
 		}
