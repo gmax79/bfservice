@@ -16,46 +16,47 @@ func TestCreateInvalidBusket(t *testing.T) {
 	}
 }
 
-func TestTimeListMaxSize(t *testing.T) {
-	list, err := CreateTimeList(5)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for i := 1; i <= 5; i++ {
-		if list.Score() {
-			t.Fatal("List not be full")
-		}
-	}
-	if !list.Score() {
-		t.Fatal("List must be full")
-	}
-	time.Sleep(time.Second * 2)
-}
-
-func TestTimeListDiff(t *testing.T) {
-	list, err := CreateTimeList(10)
+func TestBusketMaxSize(t *testing.T) {
+	busket, err := CreateBusket(10, time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}
 	for i := 1; i <= 10; i++ {
-		if list.Score() {
-			t.Fatal("List not be full")
+		if !busket.Score() {
+			t.Fatal("Busket not be full")
 		}
-		time.Sleep(time.Millisecond * 120)
 	}
-	if list.Diff() <= time.Second {
-		t.Error("Duration can not be less 1 second")
+	if busket.Score() {
+		t.Fatal("Busket must be full")
 	}
 }
 
-func TestTimeListLifeTime(t *testing.T) {
-	list, err := CreateTimeList(11)
+func TestBusketRating(t *testing.T) {
+	busket, err := CreateBusket(10, time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}
-	_ = list.Score()
+	for i := 1; i <= 10; i++ {
+		if !busket.Score() {
+			t.Fatal("Busket not be full")
+		}
+		time.Sleep(time.Millisecond * 120)
+	}
+	if !busket.Score() {
+		t.Fatal("Busket not be full, was drained?")
+	}
+	if busket.Score() {
+		t.Fatal("Busket must be full, fill drained item")
+	}
+}
+
+func TestBusketIdleTime(t *testing.T) {
+	list, err := CreateBusket(10, time.Millisecond*50)
+	if err != nil {
+		t.Fatal(err)
+	}
 	time.Sleep(time.Millisecond * 100)
-	if list.Lifetime() <= time.Millisecond*100 {
+	if list.Idletime() < time.Millisecond*100 {
 		t.Error("Lifetime can not be less 100 ms")
 	}
 }

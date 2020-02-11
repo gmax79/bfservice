@@ -156,7 +156,7 @@ func testWhiteList(conn *grpccon.Client) error {
 
 	testIPRate := res.hosts[host]
 	fmt.Printf("limits result: calls %d, passed ip '%s': %d\n", res.calls, host, testIPRate)
-	if rates.HostRate != testIPRate {
+	if hostCalls != testIPRate {
 		return errors.New("testWhiteList failed")
 	}
 	fmt.Println("pass: limits as service settings")

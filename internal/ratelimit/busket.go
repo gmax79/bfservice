@@ -20,14 +20,14 @@ func CreateBusket(size int, rate time.Duration) (*Busket, error) {
 	if size <= 0 {
 		return nil, errors.New("invalid size parameter")
 	}
-	if rate == 0 {
+	if rate <= 0 {
 		return nil, errors.New("invalid rate parameter")
 	}
 	var b Busket
 	b.capacity = size
 	b.fill = 0
 	b.lastDrained = time.Now()
-	b.ratems = 1 / float64(rate.Milliseconds())
+	b.ratems = float64(rate.Milliseconds())
 	b.lastDrainResidue = 0
 	return &b, nil
 }

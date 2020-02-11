@@ -21,7 +21,7 @@ func (m *Subnet) Parse(subnet string) error {
 	case 1:
 		err = m.address.Parse(parts[0])
 		if err == nil {
-			m.mask = 31
+			m.mask = 32
 		}
 	case 2:
 		err = m.address.Parse(parts[0])
@@ -44,13 +44,12 @@ func (m *Subnet) String() string {
 	return fmt.Sprintf("%s/%d", m.address.String(), m.mask)
 }
 
-var masks = [32]IPAddr{}
+var masks = [33]IPAddr{}
 
 func init() {
 	masks[0] = 0
 	var mask IPAddr = 0x80000000
-
-	for i := 1; i < 32; i++ {
+	for i := 1; i <= 32; i++ {
 		masks[i] = masks[i-1] | mask
 		mask >>= 1
 	}

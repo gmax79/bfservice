@@ -153,7 +153,6 @@ func (ab *AbfGrpcImpl) DeleteBlackList(ctx context.Context, in *grpcapi.DeleteBl
 
 // GetState - get current config settings or states of service
 func (ab *AbfGrpcImpl) GetState(ctx context.Context, in *grpcapi.GetStateRequest) (*grpcapi.GetStateResponse, error) {
-	ab.logger.Info("Get state")
 	var out grpcapi.GetStateResponse
 	limits := ab.hfilter.GetLimits()
 	out.LoginRate = int32(limits.Login)
