@@ -1,6 +1,7 @@
 package ratelimit
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/jdeal-mediamath/clockwork"
@@ -21,17 +22,28 @@ type Counter struct {
 	login    *Limitation
 	password *Limitation
 	host     *Limitation
-	clock    clockwork.Clock
 }
 
 // CreateCounter - create main object
-func CreateCounter(rates Config, clock clockwork.Clock) *Counter {
+func CreateCounter(rates Config, clock clockwork.Clock) (*Counter, error) {
+	var err error
+	loginBucketsFactory, err := CreateBucketsFactory(rates.Login, rates.LoginDuration, clock)
+	if err != nil {
+		return nil, fmt.Errorf("Error in login rates. %w", err)
+	}
+	passwordBucketsFactory, err := CreateBucketsFactory(rates.Password, rates.PasswordDuration, clock)
+	if err != nil {
+		return nil, fmt.Errorf("Error in password rates. %w", err)
+	}
+	hostBucketsFactory, err := CreateBucketsFactory(rates.Host, rates.HostDuration, clock)
+	if err != nil {
+		return nil, fmt.Errorf("Error in host rates. %w", err)
+	}
 	var c Counter
-	c.login = CreateLimitation(rates.Login, rates.LoginDuration)
-	c.password = CreateLimitation(rates.Password, rates.PasswordDuration)
-	c.host = CreateLimitation(rates.Host, rates.HostDuration)
-	c.clock = clock
-	return &c
+	c.login = CreateLimitation(loginBucketsFactory)
+	c.password = CreateLimitation(passwordBucketsFactory)
+	c.host = CreateLimitation(hostBucketsFactory)
+	return &c, nil
 }
 
 // CheckAndCount - main function to count attempts and collect it in buckets

@@ -3,24 +3,29 @@ package ratelimit
 import (
 	"testing"
 	"time"
+
+	"github.com/jdeal-mediamath/clockwork"
 )
 
 func TestCreateInvalidBusket(t *testing.T) {
-	_, err := CreateBucket(0, time.Second)
+	clock := clockwork.NewFakeClock()
+	_, err := CreateBucketsFactory(0, time.Second, clock)
 	if err == nil {
 		t.Fatal("Basket cant be empty")
 	}
-	_, err = CreateBucket(5, time.Second*0)
+	_, err = CreateBucketsFactory(5, time.Second*0, clock)
 	if err == nil {
-		t.Fatal("Basket cant be 0 rated")
+		t.Fatal("Basket cant be zero rated")
 	}
 }
 
 func TestBusketMaxSize(t *testing.T) {
-	busket, err := CreateBucket(10, time.Second)
+	clock := clockwork.NewFakeClock()
+	bf, err := CreateBucketsFactory(10, time.Second, clock)
 	if err != nil {
 		t.Fatal(err)
 	}
+	busket := bf()
 	for i := 1; i <= 10; i++ {
 		if !busket.Score() {
 			t.Fatal("Busket not be full")
@@ -32,15 +37,17 @@ func TestBusketMaxSize(t *testing.T) {
 }
 
 func TestBusketRating(t *testing.T) {
-	busket, err := CreateBucket(10, time.Second)
+	clock := clockwork.NewFakeClock()
+	bf, err := CreateBucketsFactory(10, time.Second, clock)
 	if err != nil {
 		t.Fatal(err)
 	}
+	busket := bf()
 	for i := 1; i <= 10; i++ {
 		if !busket.Score() {
 			t.Fatal("Busket not be full")
 		}
-		time.Sleep(time.Millisecond * 120)
+		clock.Advance(time.Millisecond * 120)
 	}
 	if !busket.Score() {
 		t.Fatal("Busket not be full, was drained?")
@@ -51,12 +58,14 @@ func TestBusketRating(t *testing.T) {
 }
 
 func TestBusketIdleTime(t *testing.T) {
-	list, err := CreateBucket(10, time.Millisecond*50)
+	clock := clockwork.NewFakeClock()
+	bf, err := CreateBucketsFactory(10, time.Millisecond*50, clock)
 	if err != nil {
 		t.Fatal(err)
 	}
-	time.Sleep(time.Millisecond * 100)
-	if list.Idletime() < time.Millisecond*100 {
+	busket := bf()
+	clock.Advance(time.Millisecond * 100)
+	if busket.Idletime() < time.Millisecond*100 {
 		t.Error("Lifetime can not be less 100 ms")
 	}
 }

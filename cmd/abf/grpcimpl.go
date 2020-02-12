@@ -23,16 +23,19 @@ func openGRPCServer(config RatesAndHostConfig, zaplog *zap.Logger) (*AbfGrpcImpl
 	if err != nil {
 		return nil, err
 	}
-	g := &AbfGrpcImpl{}
+	var g AbfGrpcImpl
+	g.hfilter, err = createFilter(config)
+	if err != nil {
+		return nil, err
+	}
 	g.server = grpc.NewServer()
 	g.logger = zaplog
-	g.hfilter = createFilter(config)
 	grpcapi.RegisterAntiBruteforceServer(g.server, g)
 
 	go func() {
 		g.lasterror = g.server.Serve(listen)
 	}()
-	return g, nil
+	return &g, nil
 }
 
 // HealthCheck - method to check service for alive

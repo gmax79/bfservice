@@ -5,28 +5,29 @@ import (
 	"time"
 )
 
+const bucketsLifeTime = time.Second
+
 // Limitation - object to limits elements check per size/minute
 type Limitation struct {
-	items        map[string]*Bucket
-	maxPerItem   int
-	mutex        *sync.Mutex
-	timeInterval time.Duration
+	items      map[string]*Bucket
+	maxPerItem int
+	mutex      *sync.Mutex
+	bf         func() *Bucket
 }
 
-// CreateLimitation - create limitation map - count per duration
-func CreateLimitation(count int, duration time.Duration) *Limitation {
+// CreateLimitation - create limitation map - count per duration, requires function to create new buckets
+func CreateLimitation(bf func() *Bucket) *Limitation {
 	var m Limitation
 	m.items = make(map[string]*Bucket)
 	m.mutex = &sync.Mutex{}
-	m.maxPerItem = count
-	m.timeInterval = duration
+	m.bf = bf
 	go func() {
 		// garbage collector
 		for {
 			m.mutex.Lock()
 			for k, t := range m.items {
 				d := t.Idletime()
-				if d > m.timeInterval {
+				if d > bucketsLifeTime {
 					delete(m.items, k)
 				}
 			}
@@ -43,11 +44,7 @@ func (m *Limitation) Check(item string) (bool, error) {
 	defer m.mutex.Unlock()
 	v, ok := m.items[item]
 	if !ok {
-		var err error
-		v, err = CreateBucket(m.maxPerItem, m.timeInterval)
-		if err != nil {
-			return false, err
-		}
+		v = m.bf()
 		m.items[item] = v
 	}
 	scored := v.Score()

@@ -3,20 +3,19 @@ package ratelimit
 import (
 	"testing"
 	"time"
+
+	"github.com/jdeal-mediamath/clockwork"
 )
 
 const testid = "dummy"
 
-func TestLimitationInvalidCreation(t *testing.T) {
-	l := CreateLimitation(1, time.Second)
-	_, err := l.Check(testid)
-	if err == nil {
-		t.Fatal("Must be error, cant create limitation with len < 2")
-	}
-}
-
 func TestLimitationFast(t *testing.T) {
-	l := CreateLimitation(10, time.Second)
+	clock := clockwork.NewFakeClock()
+	bf, err := CreateBucketsFactory(10, time.Second, clock)
+	if err != nil {
+		t.Fatal(err)
+	}
+	l := CreateLimitation(bf)
 	for i := 1; i <= 10; i++ {
 		state, err := l.Check(testid)
 		if err != nil {
@@ -38,7 +37,12 @@ func TestLimitationFast(t *testing.T) {
 }
 
 func TestLimitationGC(t *testing.T) {
-	l := CreateLimitation(10, time.Second)
+	clock := clockwork.NewFakeClock()
+	bf, err := CreateBucketsFactory(10, time.Second, clock)
+	if err != nil {
+		t.Fatal(err)
+	}
+	l := CreateLimitation(bf)
 	for i := 1; i <= 10; i++ {
 		state, err := l.Check(testid)
 		if err != nil {
@@ -47,10 +51,10 @@ func TestLimitationGC(t *testing.T) {
 		if state == false {
 			t.Fatal("Limitation must non-blocking")
 		}
-		time.Sleep(time.Millisecond * 100)
+		clock.Advance(time.Millisecond * 100)
 	}
-	// wait, free some elements by gc
-	time.Sleep(time.Millisecond * 100)
+	// wait, free element by gc
+	clock.Advance(time.Millisecond * 100)
 	state, err := l.Check(testid)
 	if err != nil {
 		t.Fatal(err)
@@ -58,17 +62,18 @@ func TestLimitationGC(t *testing.T) {
 	if state == false {
 		t.Fatal("Limitation must non-blocking")
 	}
-	time.Sleep(time.Millisecond * 100)
+
+	clock.Advance(time.Millisecond * 100)
 	state, err = l.Check(testid)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if state == false {
-		t.Fatal("Limitation must non-blocking")
+	if state == true {
+		t.Fatal("Limitation must blocking")
 	}
-	// wait lifetime,
-	time.Sleep(time.Millisecond * 1100)
+	// wait lifetime
+	clock.Advance(time.Millisecond * 1100)
 	if l.Size() != 0 {
-		t.Fatal("timelist must be garbaged")
+		t.Fatal("Limitation must be garbaged")
 	}
 }

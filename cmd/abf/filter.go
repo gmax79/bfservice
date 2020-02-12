@@ -19,20 +19,25 @@ type filter struct {
 }
 
 // createFilter - create instance of filter
-func createFilter(config RatesAndHostConfig) *filter {
-	f := filter{}
-	f.whitelist = netsupport.CreateSubnetsList()
-	f.blacklist = netsupport.CreateSubnetsList()
-	f.wmx = &sync.Mutex{}
-	f.bmx = &sync.Mutex{}
+func createFilter(config RatesAndHostConfig) (*filter, error) {
+	var f filter
 	f.limits.Login = config.LoginRate
 	f.limits.LoginDuration = time.Minute
 	f.limits.Password = config.PasswordRate
 	f.limits.PasswordDuration = time.Minute
 	f.limits.Host = config.IPRate
 	f.limits.HostDuration = time.Minute
-	f.counter = ratelimit.CreateCounter(f.limits, clockwork.NewRealClock())
-	return &f
+
+	var err error
+	f.counter, err = ratelimit.CreateCounter(f.limits, clockwork.NewRealClock())
+	if err != nil {
+		return nil, err
+	}
+	f.whitelist = netsupport.CreateSubnetsList()
+	f.blacklist = netsupport.CreateSubnetsList()
+	f.wmx = &sync.Mutex{}
+	f.bmx = &sync.Mutex{}
+	return &f, nil
 }
 
 func (f *filter) CheckLogin(login, password, hostip string) (bool, string, error) {
