@@ -44,7 +44,6 @@ func check(conn *grpccon.Client, logins, passwords, ipaddr func() string) *check
 		}
 		result.calls++
 		resp, err := conn.CheckLogin(ctx, login, password, ip)
-		time.Sleep(time.Millisecond * 5)
 		if resp == nil || err != nil {
 			result.err = err
 			return &result
@@ -65,6 +64,16 @@ func reset(conn *grpccon.Client, login, host string) error {
 	return err
 }
 
+func getState(conn *grpccon.Client) (*grpccon.State, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	rates, err := conn.GetState(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return rates, nil
+}
+
 func testHealthCheck(conn *grpccon.Client) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
@@ -77,18 +86,17 @@ func testLimitationLoginPassword(conn *grpccon.Client) error {
 	if err != nil {
 		return err
 	}
+	rates, err := getState(conn)
+	if err != nil {
+		return err
+	}
+
 	randomPassword := randomString() // use random password, exclude conflicts after restart test (blocking by password)
 	logins := stringGenerator(150, 50, "login")
 	passwords := fromConstGenerator(randomPassword, 200)
 	ip := fromConstGenerator("192.168.1.1", 200)
 	res := check(conn, logins, passwords, ip)
 
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-	rates, err := conn.GetState(ctx)
-	if err != nil {
-		return err
-	}
 	testLoginsRate := res.logins["login"]
 	testPasswordRate := res.passwords[randomPassword]
 	fmt.Printf("limits result: calls %d, passed login 'login': %d, password '%s': %d\n",
@@ -107,16 +115,16 @@ func testLimitationHost(conn *grpccon.Client) error {
 	if err != nil {
 		return err
 	}
+	rates, err := getState(conn)
+	if err != nil {
+		return err
+	}
+
 	passwords := randomString
 	logins := randomString
 	ip := ipGenerator(300, "192.168.2.0", 1100, host)
 	res := check(conn, logins, passwords, ip)
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-	rates, err := conn.GetState(ctx)
-	if err != nil {
-		return err
-	}
+
 	testHostRate := res.hosts[host]
 	fmt.Printf("limits result: calls %d, passed ip '%s': %d\n", res.calls, host, testHostRate)
 	if rates.HostRate != testHostRate {
