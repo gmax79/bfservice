@@ -123,7 +123,6 @@ func testLimitationHost(conn *grpccon.Client) error {
 		return errors.New("testLimitationHost failed")
 	}
 	fmt.Println("pass: limits as service settings")
-
 	return res.err
 }
 
