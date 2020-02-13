@@ -100,5 +100,4 @@ func TestCounterRatesLimits(t *testing.T) {
 	if added5 || added6 || added7 {
 		t.Fatal("limits all collected, cant add new")
 	}
-
 }

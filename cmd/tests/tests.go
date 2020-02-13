@@ -95,9 +95,8 @@ func testLimitationLoginPassword(conn *grpccon.Client) error {
 		res.calls, testLoginsRate, randomPassword, testPasswordRate)
 	if rates.LoginRate != testLoginsRate || rates.PasswordRate != testPasswordRate {
 		return errors.New("testLimitationLoginPassword failed")
-	} else {
-		fmt.Println("pass: limits as service settings")
 	}
+	fmt.Println("pass: limits as service settings")
 	return res.err
 }
 
@@ -122,9 +121,9 @@ func testLimitationHost(conn *grpccon.Client) error {
 	fmt.Printf("limits result: calls %d, passed ip '%s': %d\n", res.calls, host, testHostRate)
 	if rates.HostRate != testHostRate {
 		return errors.New("testLimitationHost failed")
-	} else {
-		fmt.Println("pass: limits as service settings")
 	}
+	fmt.Println("pass: limits as service settings")
+
 	return res.err
 }
 

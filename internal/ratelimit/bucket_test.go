@@ -101,5 +101,4 @@ func TestBucketFullDraining(t *testing.T) {
 	if bucket.GetScores() != 0 {
 		t.Fatal("Bucket must be empty")
 	}
-
 }

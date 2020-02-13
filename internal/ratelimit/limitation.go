@@ -9,10 +9,9 @@ const bucketsLifeTime = time.Second
 
 // Limitation - object to limits elements check per size/minute
 type Limitation struct {
-	items      map[string]*Bucket
-	maxPerItem int
-	mutex      *sync.Mutex
-	bf         func() *Bucket
+	items map[string]*Bucket
+	mutex *sync.Mutex
+	bf    func() *Bucket
 }
 
 // CreateLimitation - create limitation map - count per duration, requires function to create new buckets

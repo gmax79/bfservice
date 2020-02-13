@@ -8,7 +8,7 @@ import (
 	"github.com/jdeal-mediamath/clockwork"
 )
 
-// Bucket - main object to implentation rate limit algorithm
+// Bucket - main object to implementation rate limit algorithm
 type Bucket struct {
 	capacity         int
 	fill             int
