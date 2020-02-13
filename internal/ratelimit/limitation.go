@@ -1,6 +1,7 @@
 package ratelimit
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
@@ -21,18 +22,20 @@ func CreateLimitation(bf func() *Bucket) *Limitation {
 	m.items = make(map[string]*Bucket)
 	m.mutex = &sync.Mutex{}
 	m.bf = bf
+	clock := bf().clock
 	go func() {
 		// garbage collector
 		for {
 			m.mutex.Lock()
 			for k, t := range m.items {
 				d := t.Idletime()
-				if d > bucketsLifeTime {
+				if d >= bucketsLifeTime {
+					fmt.Println(k)
 					delete(m.items, k)
 				}
 			}
 			m.mutex.Unlock()
-			time.Sleep(time.Millisecond * 100)
+			clock.Sleep(time.Millisecond * 100)
 		}
 	}()
 	return &m

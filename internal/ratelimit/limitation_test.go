@@ -51,7 +51,6 @@ func TestLimitationGC(t *testing.T) {
 		if state == false {
 			t.Fatal("Limitation must non-blocking")
 		}
-		clock.Advance(time.Millisecond * 100)
 	}
 	// wait, free element by gc
 	clock.Advance(time.Millisecond * 100)
@@ -62,8 +61,6 @@ func TestLimitationGC(t *testing.T) {
 	if state == false {
 		t.Fatal("Limitation must non-blocking")
 	}
-
-	clock.Advance(time.Millisecond * 100)
 	state, err = l.Check(testid)
 	if err != nil {
 		t.Fatal(err)
@@ -71,8 +68,13 @@ func TestLimitationGC(t *testing.T) {
 	if state == true {
 		t.Fatal("Limitation must blocking")
 	}
-	// wait lifetime
-	clock.Advance(time.Millisecond * 1100)
+
+	// wait lifetime of bucket
+	clock.Advance(bucketsLifeTime)
+
+	// sleep, run gc goroutine
+	time.Sleep(time.Millisecond * 100)
+
 	if l.Size() != 0 {
 		t.Fatal("Limitation must be garbaged")
 	}

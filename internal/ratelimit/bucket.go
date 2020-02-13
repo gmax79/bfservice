@@ -48,6 +48,12 @@ func (b *Bucket) Score() bool {
 	return true // pass
 }
 
+// GetScores - return fill level of bucket in now time
+func (b *Bucket) GetScores() int {
+	b.drain()
+	return b.fill
+}
+
 // Drain - remove fill level from busket with configured rate
 func (b *Bucket) drain() {
 	now := b.clock.Now()
