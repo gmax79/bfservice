@@ -57,10 +57,11 @@ func (f *filter) CheckLogin(login, password, hostip string) (bool, string, error
 	if inwhitelist {
 		return true, "passed by whitelist", nil
 	}
-	return f.counter.CheckAndCount(login, password, hostip)
+	scored, reason := f.counter.CheckAndCount(login, password, hostip)
+	return scored, reason, nil
 }
 
-func (f *filter) ResetLogin(login, hostip string) (bool, error) {
+func (f *filter) ResetLogin(login, hostip string) bool {
 	return f.counter.Reset(login, hostip)
 }
 

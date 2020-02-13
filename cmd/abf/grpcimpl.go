@@ -63,17 +63,9 @@ func (ab *AbfGrpcImpl) CheckLogin(ctx context.Context, in *grpcapi.CheckLoginReq
 // ResetLogin - remove login from internal base (reset bruteforce rate)
 func (ab *AbfGrpcImpl) ResetLogin(ctx context.Context, in *grpcapi.ResetLoginRequest) (*grpcapi.ResetLoginResponse, error) {
 	var out grpcapi.ResetLoginResponse
-	var err error
-	out.Reseted, err = ab.hfilter.ResetLogin(in.Login, in.Ip)
-	if err != nil {
-		ab.logger.Error("Reset login/ip", zap.String("login", in.Login), zap.String("host", in.Ip), zap.Error(err))
-	} else {
-		ab.logger.Info("Reset login/ip", zap.String("login", in.Login), zap.String("host", in.Ip), zap.Bool("was exist", out.Reseted))
-	}
-	if err != nil {
-		ab.logger.Error(err.Error())
-	}
-	return &out, err
+	out.Reseted = ab.hfilter.ResetLogin(in.Login, in.Ip)
+	ab.logger.Info("Reset login/ip", zap.String("login", in.Login), zap.String("host", in.Ip), zap.Bool("was exist", out.Reseted))
+	return &out, nil
 }
 
 // AddWhiteList - add ip into whitelist

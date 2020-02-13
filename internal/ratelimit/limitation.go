@@ -1,7 +1,6 @@
 package ratelimit
 
 import (
-	"fmt"
 	"sync"
 	"time"
 )
@@ -30,7 +29,6 @@ func CreateLimitation(bf func() *Bucket) *Limitation {
 			for k, t := range m.items {
 				d := t.Idletime()
 				if d >= bucketsLifeTime {
-					fmt.Println(k)
 					delete(m.items, k)
 				}
 			}
@@ -42,7 +40,7 @@ func CreateLimitation(bf func() *Bucket) *Limitation {
 }
 
 // Check - check item for limitation
-func (m *Limitation) Check(item string) (bool, error) {
+func (m *Limitation) Check(item string) bool {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	v, ok := m.items[item]
@@ -51,7 +49,7 @@ func (m *Limitation) Check(item string) (bool, error) {
 		m.items[item] = v
 	}
 	scored := v.Score()
-	return scored, nil
+	return scored
 }
 
 // Reset - remove item from limitation

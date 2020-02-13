@@ -17,20 +17,12 @@ func TestLimitationFast(t *testing.T) {
 	}
 	l := CreateLimitation(bf)
 	for i := 1; i <= 10; i++ {
-		state, err := l.Check(testid)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if state == false {
+		if l.Check(testid) == false {
 			t.Fatal("Limitation must non-blocking")
 		}
 	}
 	for i := 1; i <= 10; i++ {
-		state, err := l.Check(testid)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if state == true {
+		if l.Check(testid) == true {
 			t.Fatal("Limitation must be blocked")
 		}
 	}
@@ -44,28 +36,16 @@ func TestLimitationGC(t *testing.T) {
 	}
 	l := CreateLimitation(bf)
 	for i := 1; i <= 10; i++ {
-		state, err := l.Check(testid)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if state == false {
+		if l.Check(testid) == false {
 			t.Fatal("Limitation must non-blocking")
 		}
 	}
 	// wait, free element by gc
 	clock.Advance(time.Millisecond * 100)
-	state, err := l.Check(testid)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if state == false {
+	if l.Check(testid) == false {
 		t.Fatal("Limitation must non-blocking")
 	}
-	state, err = l.Check(testid)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if state == true {
+	if l.Check(testid) == true {
 		t.Fatal("Limitation must blocking")
 	}
 
@@ -77,5 +57,19 @@ func TestLimitationGC(t *testing.T) {
 
 	if l.Size() != 0 {
 		t.Fatal("Limitation must be garbaged")
+	}
+}
+
+func TestLimitationReset(t *testing.T) {
+	clock := clockwork.NewFakeClock()
+	bf, err := CreateBucketsFactory(10, time.Second, clock)
+	if err != nil {
+		t.Fatal(err)
+	}
+	l := CreateLimitation(bf)
+	l.Check(testid)
+	found := l.Reset(testid)
+	if !found {
+		t.Fatal("bucket not found ?")
 	}
 }

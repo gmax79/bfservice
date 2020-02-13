@@ -47,34 +47,22 @@ func CreateCounter(rates Config, clock clockwork.Clock) (*Counter, error) {
 }
 
 // CheckAndCount - main function to count attempts and collect it in buckets
-func (c *Counter) CheckAndCount(login, password, hostip string) (bool, string, error) {
-	bylogin, err := c.login.Check(login)
-	if err != nil {
-		return false, "", err
+func (c *Counter) CheckAndCount(login, password, hostip string) (bool, string) {
+	if !c.login.Check(login) {
+		return false, "login rates limit"
 	}
-	if !bylogin {
-		return false, "login rates limit", nil
+	if !c.password.Check(password) {
+		return false, "password rates limit"
 	}
-	bypassword, err := c.password.Check(password)
-	if err != nil {
-		return false, "", err
+	if !c.host.Check(hostip) {
+		return false, "host rates limit"
 	}
-	if !bypassword {
-		return false, "password rates limit", nil
-	}
-	byhost, err := c.host.Check(hostip)
-	if err != nil {
-		return false, "", err
-	}
-	if !byhost {
-		return false, "host rates limit", nil
-	}
-	return true, "", nil
+	return true, ""
 }
 
 // Reset - reset login+host from counter buckets
-func (c *Counter) Reset(login, hostip string) (bool, error) {
+func (c *Counter) Reset(login, hostip string) bool {
 	resetLogin := c.login.Reset(login)
 	resetHost := c.host.Reset(hostip)
-	return resetLogin || resetHost, nil
+	return resetLogin || resetHost
 }
