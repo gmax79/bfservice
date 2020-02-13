@@ -44,3 +44,15 @@ func TestSubnetString(t *testing.T) {
 		t.Fatal("subnet incorrect converted into string")
 	}
 }
+
+func TestInvalidSubnetString(t *testing.T) {
+	var s Subnet
+	err := s.Parse("1.2.3.4/33")
+	if err == nil {
+		t.Fatal("Cant be mask 33")
+	}
+	err = s.Parse("1.2.3.4/10/12")
+	if err == nil {
+		t.Fatal("Subnet must be with one network mask")
+	}
+}
