@@ -3,6 +3,7 @@ package grpccon
 import (
 	"context"
 	"errors"
+	"time"
 
 	grpcapi "github.com/gmax79/bfservice/api/grpc"
 
@@ -15,11 +16,14 @@ type Response struct {
 	Reason string
 }
 
-// State - struct with current settings and state
-type State struct {
-	LoginRate    int
-	PasswordRate int
-	HostRate     int
+// Rates - struct with current settings and state
+type Rates struct {
+	LoginRate        int
+	LoginInterval    time.Duration
+	PasswordRate     int
+	PasswordInterval time.Duration
+	HostRate         int
+	HostInterval     time.Duration
 }
 
 // Client - client to connect to service
@@ -149,16 +153,19 @@ func (c *Client) DeleteBlackList(ctx context.Context, ipmask string) (*Response,
 	return &r, nil
 }
 
-// GetState - get current remote server state
-func (c *Client) GetState(ctx context.Context) (*State, error) {
-	var req grpcapi.GetStateRequest
-	resp, err := c.client.GetState(ctx, &req)
+// GetRates - get current remote server rates
+func (c *Client) GetRates(ctx context.Context) (*Rates, error) {
+	var req grpcapi.GetRatesRequest
+	resp, err := c.client.GetRates(ctx, &req)
 	if err != nil {
 		return nil, err
 	}
-	var s State
-	s.LoginRate = int(resp.LoginRate)
-	s.PasswordRate = int(resp.PasswordRate)
-	s.HostRate = int(resp.HostRate)
-	return &s, nil
+	var r Rates
+	r.LoginRate = int(resp.LoginRate)
+	r.LoginInterval = time.Duration(resp.LoginInterval)
+	r.PasswordRate = int(resp.PasswordRate)
+	r.PasswordInterval = time.Duration(resp.PasswordInterval)
+	r.HostRate = int(resp.HostRate)
+	r.HostInterval = time.Duration(resp.HostInterval)
+	return &r, nil
 }

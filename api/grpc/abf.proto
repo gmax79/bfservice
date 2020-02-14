@@ -11,7 +11,7 @@ service AntiBruteforce {
     rpc AddBlackList(AddBlackListRequest) returns (AddBlackListResponse);
     rpc DeleteBlackList(DeleteBlackListRequest) returns (DeleteBlackListResponse);
     rpc HealthCheck(HealthCheckRequst) returns (HealthCheckResponse);
-    rpc GetState(GetStateRequest) returns (GetStateResponse);
+    rpc GetRates(GetRatesRequest) returns (GetRatesResponse);
 }
 
 message CheckLoginRequest {
@@ -79,11 +79,14 @@ message DeleteBlackListResponse {
      string status = 1;
  }
 
-message GetStateRequest {
+message GetRatesRequest {
 }
 
-message GetStateResponse {
+message GetRatesResponse {
     int32 loginRate = 1;
-    int32 passwordRate = 2;
-    int32 hostRate = 3;
+    int64 loginInterval = 2;
+    int32 passwordRate = 3;
+    int64 passwordInterval = 4;
+    int32 hostRate = 5;
+    int64 hostInterval = 6;
 }

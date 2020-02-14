@@ -64,10 +64,10 @@ func reset(conn *grpccon.Client, login, host string) error {
 	return err
 }
 
-func getState(conn *grpccon.Client) (*grpccon.State, error) {
+func getRates(conn *grpccon.Client) (*grpccon.Rates, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	rates, err := conn.GetState(ctx)
+	rates, err := conn.GetRates(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func testLimitationLoginPassword(conn *grpccon.Client) error {
 	if err != nil {
 		return err
 	}
-	rates, err := getState(conn)
+	rates, err := getRates(conn)
 	if err != nil {
 		return err
 	}
@@ -115,15 +115,19 @@ func testLimitationHost(conn *grpccon.Client) error {
 	if err != nil {
 		return err
 	}
-	rates, err := getState(conn)
+	rates, err := getRates(conn)
 	if err != nil {
 		return err
 	}
 
 	passwords := randomString
 	logins := randomString
-	ip := ipGenerator(300, "192.168.2.0", 1100, host)
+	ip := ipGenerator(300, "192.168.2.0", rates.LoginRate+100, host)
+
+	startTime := time.Now()
 	res := check(conn, logins, passwords, ip)
+	workTime := time.Now().Sub(startTime)
+	_ = workTime
 
 	testHostRate := res.hosts[host]
 	fmt.Printf("limits result: calls %d, passed ip '%s': %d\n", res.calls, host, testHostRate)
@@ -136,19 +140,17 @@ func testLimitationHost(conn *grpccon.Client) error {
 
 func testWhiteList(conn *grpccon.Client) error {
 	fmt.Println("testWhiteList")
+	rates, err := getRates(conn)
+	if err != nil {
+		return err
+	}
+
 	const host = "192.168.3.1"
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	fmt.Println("Add into whitelist", host)
 	result, err := conn.AddWhiteList(ctx, host)
 	printResult(result, err)
-	if err != nil {
-		return err
-	}
-
-	ctx2, cancel2 := context.WithTimeout(context.Background(), timeout)
-	defer cancel2()
-	rates, err := conn.GetState(ctx2)
 	if err != nil {
 		return err
 	}
