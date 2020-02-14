@@ -162,10 +162,10 @@ func (c *Client) GetRates(ctx context.Context) (*Rates, error) {
 	}
 	var r Rates
 	r.LoginRate = int(resp.LoginRate)
-	r.LoginInterval = time.Duration(resp.LoginInterval)
+	r.LoginInterval = time.Duration(resp.LoginInterval) * time.Millisecond
 	r.PasswordRate = int(resp.PasswordRate)
-	r.PasswordInterval = time.Duration(resp.PasswordInterval)
+	r.PasswordInterval = time.Duration(resp.PasswordInterval) * time.Millisecond
 	r.HostRate = int(resp.HostRate)
-	r.HostInterval = time.Duration(resp.HostInterval)
+	r.HostInterval = time.Duration(resp.HostInterval) * time.Millisecond
 	return &r, nil
 }

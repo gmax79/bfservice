@@ -13,7 +13,8 @@ const timeout = time.Second * 15
 
 var tests = []func(*grpccon.Client) error{
 	testHealthCheck,
-	testLimitationLoginPassword,
+	testLimitationLogin,
+	testLimitationPassword,
 	testLimitationHost,
 	testWhiteList,
 	//testLimitationHost,
@@ -74,14 +75,51 @@ func getRates(conn *grpccon.Client) (*grpccon.Rates, error) {
 	return rates, nil
 }
 
+func calcWithLeaked(worktime time.Duration, count int, rateInteraval time.Duration) int {
+	ratems := float64(count) / float64(rateInteraval.Milliseconds())
+	leaked := float64(worktime.Milliseconds()) * ratems
+	return count + int(leaked)
+}
+
 func testHealthCheck(conn *grpccon.Client) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	return conn.HealthCheck(ctx)
 }
 
-func testLimitationLoginPassword(conn *grpccon.Client) error {
-	fmt.Println("testLimitationLoginPassword")
+func testLimitationLogin(conn *grpccon.Client) error {
+	fmt.Println("testLimitationLogin")
+	err := reset(conn, "login", "192.168.1.1") // reset blocks for test's login and ip (to repeating tests)
+	if err != nil {
+		return err
+	}
+	rates, err := getRates(conn)
+	if err != nil {
+		return err
+	}
+
+	attemps := rates.LoginRate
+	logins := stringGenerator(10, attemps+10, "login")
+	passwords := randomString
+	ip := fromConstGenerator("192.168.1.1", attemps+20)
+
+	startTime := time.Now()
+	res := check(conn, logins, passwords, ip)
+	workTime := time.Now().Sub(startTime)
+
+	testLoginsRate := res.logins["login"]
+	calcLoginRate := calcWithLeaked(workTime, rates.LoginRate, rates.LoginInterval)
+	fmt.Printf("limits result: calls %d, logins passed/calculated: %d/%d\n",
+		res.calls, testLoginsRate, calcLoginRate)
+	if calcLoginRate != testLoginsRate {
+		return errors.New("testLimitationLogin failed")
+	}
+	fmt.Println("pass: limits as service settings")
+	return res.err
+}
+
+func testLimitationPassword(conn *grpccon.Client) error {
+	fmt.Println("testLimitationPassword")
 	err := reset(conn, "login", "192.168.1.1") // reset blocks for test's login and ip (to repeating tests)
 	if err != nil {
 		return err
@@ -92,17 +130,22 @@ func testLimitationLoginPassword(conn *grpccon.Client) error {
 	}
 
 	randomPassword := randomString() // use random password, exclude conflicts after restart test (blocking by password)
-	logins := stringGenerator(150, 50, "login")
-	passwords := fromConstGenerator(randomPassword, 200)
-	ip := fromConstGenerator("192.168.1.1", 200)
-	res := check(conn, logins, passwords, ip)
+	attemps := rates.PasswordRate
+	logins := randomString
+	passwords := fromConstGenerator(randomPassword, attemps+20)
+	ip := fromConstGenerator("192.168.1.1", attemps+20)
 
-	testLoginsRate := res.logins["login"]
+	startTime := time.Now()
+	res := check(conn, logins, passwords, ip)
+	workTime := time.Now().Sub(startTime)
+
 	testPasswordRate := res.passwords[randomPassword]
-	fmt.Printf("limits result: calls %d, passed login 'login': %d, password '%s': %d\n",
-		res.calls, testLoginsRate, randomPassword, testPasswordRate)
-	if rates.LoginRate != testLoginsRate || rates.PasswordRate != testPasswordRate {
-		return errors.New("testLimitationLoginPassword failed")
+	calcPasswordRate := calcWithLeaked(workTime, rates.PasswordRate, rates.PasswordInterval)
+
+	fmt.Printf("limits result: calls %d, passwords passed/calculated: %d/%d\n",
+		res.calls, testPasswordRate, calcPasswordRate)
+	if calcPasswordRate != testPasswordRate {
+		return errors.New("testLimitationPassword failed")
 	}
 	fmt.Println("pass: limits as service settings")
 	return res.err
@@ -120,18 +163,19 @@ func testLimitationHost(conn *grpccon.Client) error {
 		return err
 	}
 
+	attempts := rates.HostRate
 	passwords := randomString
 	logins := randomString
-	ip := ipGenerator(300, "192.168.2.0", rates.LoginRate+100, host)
+	ip := ipGenerator(300, "192.168.2.0", attempts+100, host)
 
 	startTime := time.Now()
 	res := check(conn, logins, passwords, ip)
 	workTime := time.Now().Sub(startTime)
-	_ = workTime
 
+	calcHostRate := calcWithLeaked(workTime, rates.HostRate, rates.HostInterval)
 	testHostRate := res.hosts[host]
-	fmt.Printf("limits result: calls %d, passed ip '%s': %d\n", res.calls, host, testHostRate)
-	if rates.HostRate != testHostRate {
+	fmt.Printf("limits result: calls %d, ip passed/calculated %d/%d\n", res.calls, testHostRate, calcHostRate)
+	if calcHostRate != testHostRate {
 		return errors.New("testLimitationHost failed")
 	}
 	fmt.Println("pass: limits as service settings")
