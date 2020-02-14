@@ -15,7 +15,7 @@ check:
 
 unittest:
 	cd internal/netsupport && go test -v -race
-	cd internal/buckets && go test -v -race
+	cd internal/ratelimit && go test -v -race
 	cd cmd/tests && go test -v -race
 
 test: docker docker-tests unittest

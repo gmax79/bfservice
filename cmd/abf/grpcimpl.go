@@ -23,19 +23,19 @@ func openGRPCServer(config RatesAndHostConfig, zaplog *zap.Logger) (*AbfGrpcImpl
 	if err != nil {
 		return nil, err
 	}
-	filter, err := createFilter(config)
+	var g AbfGrpcImpl
+	g.hfilter, err = createFilter(config)
 	if err != nil {
 		return nil, err
 	}
-	g := &AbfGrpcImpl{}
 	g.server = grpc.NewServer()
 	g.logger = zaplog
-	g.hfilter = filter
-	grpcapi.RegisterAntiBruteforceServer(g.server, g)
+	grpcapi.RegisterAntiBruteforceServer(g.server, &g)
+
 	go func() {
 		g.lasterror = g.server.Serve(listen)
 	}()
-	return g, nil
+	return &g, nil
 }
 
 // HealthCheck - method to check service for alive
@@ -47,12 +47,7 @@ func (ab *AbfGrpcImpl) HealthCheck(ctx context.Context, in *grpcapi.HealthCheckR
 
 // Stop - gracefully stopping grpc server
 func (ab *AbfGrpcImpl) Stop() {
-	ab.logger.Info("Stopping abf service")
 	ab.server.GracefulStop()
-	err := ab.hfilter.Close()
-	if err != nil {
-		ab.logger.Error("Error", zap.Error(err))
-	}
 }
 
 // CheckLogin - check login for bruteforce state. return true if can login or false for not
@@ -67,17 +62,9 @@ func (ab *AbfGrpcImpl) CheckLogin(ctx context.Context, in *grpcapi.CheckLoginReq
 // ResetLogin - remove login from internal base (reset bruteforce rate)
 func (ab *AbfGrpcImpl) ResetLogin(ctx context.Context, in *grpcapi.ResetLoginRequest) (*grpcapi.ResetLoginResponse, error) {
 	var out grpcapi.ResetLoginResponse
-	var err error
-	out.Reseted, err = ab.hfilter.ResetLogin(in.Login, in.Ip)
-	if err != nil {
-		ab.logger.Error("Reset login/ip", zap.String("login", in.Login), zap.String("host", in.Ip), zap.Error(err))
-	} else {
-		ab.logger.Info("Reset login/ip", zap.String("login", in.Login), zap.String("host", in.Ip), zap.Bool("was exist", out.Reseted))
-	}
-	if err != nil {
-		ab.logger.Error(err.Error())
-	}
-	return &out, err
+	out.Reseted = ab.hfilter.ResetLogin(in.Login, in.Ip)
+	ab.logger.Info("Reset login/ip", zap.String("login", in.Login), zap.String("host", in.Ip), zap.Bool("was exist", out.Reseted))
+	return &out, nil
 }
 
 // AddWhiteList - add ip into whitelist
@@ -87,8 +74,14 @@ func (ab *AbfGrpcImpl) AddWhiteList(ctx context.Context, in *grpcapi.AddWhiteLis
 	out.Added, err = ab.hfilter.AddWhiteList(in.Ipmask)
 	if err != nil {
 		ab.logger.Error("Add in whitelist", zap.String("mask", in.Ipmask), zap.Error(err))
+		out.Reason = err.Error()
 	} else {
 		ab.logger.Info("Add in whitelist", zap.String("mask", in.Ipmask), zap.Bool("already exist", !out.Added))
+		if !out.Added {
+			out.Reason = "already exist"
+		} else {
+			out.Reason = "new element"
+		}
 	}
 	return &out, err
 }
@@ -100,8 +93,14 @@ func (ab *AbfGrpcImpl) DeleteWhiteList(ctx context.Context, in *grpcapi.DeleteWh
 	out.Deleted, err = ab.hfilter.DeleteWhiteList(in.Ipmask)
 	if err != nil {
 		ab.logger.Error("Delete from whitelist", zap.String("mask", in.Ipmask), zap.Error(err))
+		out.Reason = err.Error()
 	} else {
 		ab.logger.Info("Delete from whitelist", zap.String("mask", in.Ipmask), zap.Bool("was exist", out.Deleted))
+		if !out.Deleted {
+			out.Reason = "not exist"
+		} else {
+			out.Reason = "deleted"
+		}
 	}
 	return &out, err
 }
@@ -114,8 +113,14 @@ func (ab *AbfGrpcImpl) AddBlackList(ctx context.Context, in *grpcapi.AddBlackLis
 	out.Added, err = ab.hfilter.AddBlackList(in.Ipmask)
 	if err != nil {
 		ab.logger.Error("Add in blacklist", zap.String("mask", in.Ipmask), zap.Error(err))
+		out.Reason = err.Error()
 	} else {
 		ab.logger.Info("Add in blacklist", zap.String("mask", in.Ipmask), zap.Bool("already exist", !out.Added))
+		if !out.Added {
+			out.Reason = "already exist"
+		} else {
+			out.Reason = "new element"
+		}
 	}
 	return &out, err
 }
@@ -128,18 +133,27 @@ func (ab *AbfGrpcImpl) DeleteBlackList(ctx context.Context, in *grpcapi.DeleteBl
 	out.Deleted, err = ab.hfilter.AddBlackList(in.Ipmask)
 	if err != nil {
 		ab.logger.Error("Delete from blacklist", zap.String("mask", in.Ipmask), zap.Error(err))
+		out.Reason = err.Error()
 	} else {
 		ab.logger.Info("Delete from blacklist", zap.String("mask", in.Ipmask), zap.Bool("was exist", out.Deleted))
+		if !out.Deleted {
+			out.Reason = "not exist"
+		} else {
+			out.Reason = "deleted"
+		}
 	}
 	return &out, err
 }
 
-// GetState - get current config settings or states of service
-func (ab *AbfGrpcImpl) GetState(ctx context.Context, in *grpcapi.GetStateRequest) (*grpcapi.GetStateResponse, error) {
-	var out grpcapi.GetStateResponse
+// GetRates - get current config settings of service
+func (ab *AbfGrpcImpl) GetRates(ctx context.Context, in *grpcapi.GetRatesRequest) (*grpcapi.GetRatesResponse, error) {
+	var out grpcapi.GetRatesResponse
 	limits := ab.hfilter.GetLimits()
 	out.LoginRate = int32(limits.Login)
+	out.LoginInterval = limits.LoginDuration.Milliseconds()
 	out.PasswordRate = int32(limits.Password)
+	out.PasswordInterval = limits.PasswordDuration.Milliseconds()
 	out.HostRate = int32(limits.Host)
+	out.HostInterval = limits.HostDuration.Milliseconds()
 	return &out, nil
 }

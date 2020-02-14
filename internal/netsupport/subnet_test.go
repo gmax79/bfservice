@@ -2,6 +2,16 @@ package netsupport
 
 import "testing"
 
+func TestSimpleIP(t *testing.T) {
+	var s Subnet
+	if err := s.Parse("1.2.3.4"); err != nil {
+		t.Fatal(err)
+	}
+	if s.mask != 32 {
+		t.Fatal("Invalid initialization subnet by ip without mask")
+	}
+}
+
 func TestParseSubnet(t *testing.T) {
 	var s Subnet
 	err := s.Parse("100.110.120.130/24")
@@ -32,5 +42,17 @@ func TestSubnetString(t *testing.T) {
 	}
 	if s.String() != "1.2.3.4/5" {
 		t.Fatal("subnet incorrect converted into string")
+	}
+}
+
+func TestInvalidSubnetString(t *testing.T) {
+	var s Subnet
+	err := s.Parse("1.2.3.4/33")
+	if err == nil {
+		t.Fatal("Cant be mask 33")
+	}
+	err = s.Parse("1.2.3.4/10/12")
+	if err == nil {
+		t.Fatal("Subnet must be with one network mask")
 	}
 }

@@ -75,6 +75,7 @@ func main() {
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 	logger.Info("Antibruteforce service started", zap.String("host", config.Host))
 	<-stop
+	logger.Info("Stopping abf service")
 	grpc.Stop()
 	logger.Info("Antibruteforce service stopped")
 }

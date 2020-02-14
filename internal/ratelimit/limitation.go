@@ -1,59 +1,54 @@
-package buckets
+package ratelimit
 
 import (
 	"sync"
 	"time"
 )
 
+const bucketsLifeTime = time.Second
+
 // Limitation - object to limits elements check per size/minute
 type Limitation struct {
-	items        map[string]*TimeList
-	maxPerItem   int
-	mutex        *sync.Mutex
-	timeInterval time.Duration
+	items map[string]*Bucket
+	mutex *sync.Mutex
+	bf    func() *Bucket
 }
 
-// CreateLimitation - create limitation map - count per duration
-func CreateLimitation(count int, duration time.Duration) *Limitation {
+// CreateLimitation - create limitation map - count per duration, requires function to create new buckets
+func CreateLimitation(bf func() *Bucket) *Limitation {
 	var m Limitation
-	m.items = make(map[string]*TimeList)
+	m.items = make(map[string]*Bucket)
 	m.mutex = &sync.Mutex{}
-	m.maxPerItem = count
-	m.timeInterval = duration
+	m.bf = bf
+	clock := bf().clock
 	go func() {
 		// garbage collector
 		for {
 			m.mutex.Lock()
 			for k, t := range m.items {
-				d := t.Lifetime()
-				if d > m.timeInterval {
+				d := t.Idletime()
+				if d >= bucketsLifeTime {
 					delete(m.items, k)
 				}
 			}
 			m.mutex.Unlock()
-			time.Sleep(time.Millisecond * 100)
+			clock.Sleep(time.Millisecond * 100)
 		}
 	}()
 	return &m
 }
 
 // Check - check item for limitation
-func (m *Limitation) Check(item string) (bool, error) {
+func (m *Limitation) Check(item string) bool {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	v, ok := m.items[item]
 	if !ok {
-		var err error
-		v, err = CreateTimeList(m.maxPerItem)
-		if err != nil {
-			return false, err
-		}
+		v = m.bf()
 		m.items[item] = v
 	}
-	if v.Score() && v.Diff() < m.timeInterval {
-		return false, nil
-	}
-	return true, nil
+	scored := v.Score()
+	return scored
 }
 
 // Reset - remove item from limitation
