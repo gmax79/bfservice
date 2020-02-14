@@ -17,24 +17,24 @@ func makesubnet(s string) Subnet {
 	return snet
 }
 
-type testsSetProvider struct {
-}
-
-func (p *testsSetProvider) Add(item string) (bool, error) {
-	return true, nil
-}
-func (p *testsSetProvider) Delete(item string) (bool, error) {
-	return true, nil
-}
-func (p *testsSetProvider) Iterator() (storage.StringIterator, error) {
-	return func() (string, bool) {
-		return "", false
-	}, nil
+func createSet() (storage.SetProvider, error) {
+	memstor, err := storage.ConnectMemory()
+	if err != nil {
+		return err
+	}
+	set, err := memstor.CreateSet("test")
+	if err != nil {
+		return err
+	}
+	return set, nil
 }
 
 func TestSubnetsListInList(t *testing.T) {
-	var p testsSetProvider
-	s, err := CreateSubnetsList(&p)
+	set, err := createSet()
+	if err != nil {
+		t.Fatal(err)
+	}
+	s, err := CreateSubnetsList(set)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,15 +74,27 @@ func TestSubnetsListInList(t *testing.T) {
 }
 
 func TestSubnetsListDelete(t *testing.T) {
-	s := CreateSubnetsList()
+	set, err := createSet()
+	if err != nil {
+		t.Fatal(err)
+	}
+	s, err := CreateSubnetsList(set)
+	if err != nil {
+		t.Fatal(err)
+	}
 	s.Add(makesubnet("192.168.1.0/24"))
-	deleted1 := s.Delete(makesubnet("192.168.0.0/24"))
+	deleted1, err := s.Delete(makesubnet("192.168.0.0/24"))
+	if err != nil {
+		t.Fatal(err)
+	}
 	if deleted1 {
 		t.Fatal("Deleted not create subnet")
 	}
-	exist := s.Exist(makesubnet("192.168.1.0/24"))
-	deleted2 := s.Delete(makesubnet("192.168.1.0/24"))
-	if !exist || !deleted2 {
+	deleted2, err := s.Delete(makesubnet("192.168.1.0/24"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !!deleted2 {
 		t.Fatal("Not found added subnet")
 	}
 }

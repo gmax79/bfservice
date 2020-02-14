@@ -6,6 +6,7 @@ import (
 
 	"github.com/gmax79/bfservice/internal/netsupport"
 	"github.com/gmax79/bfservice/internal/ratelimit"
+	"github.com/gmax79/bfservice/internal/storage"
 	"github.com/jdeal-mediamath/clockwork"
 )
 
@@ -50,13 +51,10 @@ func createFilter(config RatesAndHostConfig) (*filter, error) {
 	f.limits.Host = config.IPRate
 	f.limits.HostDuration = time.Minute
 
-	var err error
 	f.counter, err = ratelimit.CreateCounter(f.limits, clockwork.NewRealClock())
 	if err != nil {
 		return nil, err
 	}
-	f.whitelist = netsupport.CreateSubnetsList()
-	f.blacklist = netsupport.CreateSubnetsList()
 	f.wmx = &sync.Mutex{}
 	f.bmx = &sync.Mutex{}
 	return &f, nil
@@ -93,9 +91,9 @@ func (f *filter) AddWhiteList(subnetip string) (bool, error) {
 		return false, err
 	}
 	f.wmx.Lock()
-	added := f.whitelist.Add(snet)
+	added, err := f.whitelist.Add(snet)
 	f.wmx.Unlock()
-	return added, nil
+	return added, err
 }
 
 func (f *filter) DeleteWhiteList(subnetip string) (bool, error) {
@@ -104,12 +102,9 @@ func (f *filter) DeleteWhiteList(subnetip string) (bool, error) {
 		return false, err
 	}
 	f.wmx.Lock()
-	defer f.wmx.Unlock()
-	if !f.whitelist.Exist(snet) {
-		return false, nil
-	}
-	deleted := f.whitelist.Delete(snet)
-	return deleted, nil
+	deleted, err := f.whitelist.Delete(snet)
+	f.wmx.Unlock()
+	return deleted, err
 }
 
 func (f *filter) AddBlackList(subnetip string) (bool, error) {
@@ -118,9 +113,9 @@ func (f *filter) AddBlackList(subnetip string) (bool, error) {
 		return false, err
 	}
 	f.bmx.Lock()
-	added := f.blacklist.Add(snet)
+	added, err := f.blacklist.Add(snet)
 	f.bmx.Unlock()
-	return added, nil
+	return added, err
 }
 
 func (f *filter) DeleteBlackList(subnetip string) (bool, error) {
@@ -129,12 +124,9 @@ func (f *filter) DeleteBlackList(subnetip string) (bool, error) {
 		return false, err
 	}
 	f.bmx.Lock()
-	defer f.bmx.Unlock()
-	if !f.blacklist.Exist(snet) {
-		return false, nil
-	}
-	deleted := f.blacklist.Delete(snet)
-	return deleted, nil
+	deleted, err := f.blacklist.Delete(snet)
+	f.bmx.Unlock()
+	return deleted, err
 }
 
 func (f *filter) GetLimits() ratelimit.Config {

@@ -2,41 +2,27 @@ package storage
 
 import "github.com/go-redis/redis/v7"
 
-type redisSetProvider struct {
+// ConnectRedis - connect to stograge
+func ConnectRedis(host, password string, db int) (Provider, error) {
+	var p redisProvider
+	options := redis.Options{
+		Addr:     host,
+		Password: password,
+		DB:       db,
+	}
+	p.rc = redis.NewClient(&options)
+	status := p.rc.Ping()
+	return &p, status.Err()
+}
+
+type redisProvider struct {
 	rc *redis.Client
-	id string
 }
 
-func createRedisSetProvider(rc *redis.Client, id string) (*redisSetProvider, error) {
-	var p redisSetProvider
-	p.rc = rc
-	p.id = id
-	return &p, nil
+func (p *redisProvider) CreateSet(id string) (SetProvider, error) {
+	return createRedisSetProvider(p.rc, id)
 }
 
-func (p redisSetProvider) Add(item string) (bool, error) {
-	result := p.rc.SAdd(p.id, item)
-	v, err := result.Val(), result.Err()
-	flag := v == 0
-	return flag, err
-}
-
-func (p redisSetProvider) Delete(item string) (bool, error) {
-	result := p.rc.SRem(p.id, item)
-	v, err := result.Val(), result.Err()
-	flag := v == 0
-	return flag, err
-}
-
-func (p redisSetProvider) Iterator() (StringIterator, error) {
-	cmd := p.rc.SScan(p.id, 0, "", 0)
-	err := cmd.Err()
-	if err != nil {
-		return nil, err
-	}
-	iterator := func() (string, bool) {
-		val := cmd.String()
-		return val, cmd.Err() != nil
-	}
-	return iterator, nil
+func (p *redisProvider) Close() error {
+	return p.rc.Close()
 }

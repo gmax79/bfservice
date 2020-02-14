@@ -1,34 +1,17 @@
 package storage
 
-import "github.com/go-redis/redis/v7"
-
 // Provider - load/save settings in extenal storage
 type Provider interface {
 	CreateSet(id string) (SetProvider, error)
 	Close() error
 }
 
-type redisProvider struct {
-	rc *redis.Client
-}
+// StringIterator - interface to iterate over list
+type StringIterator func() (string, bool) // string, end of array flag
 
-// ConnectRedis - connect to stograge
-func ConnectRedis(host, password string, db int) (Provider, error) {
-	var p redisProvider
-	options := redis.Options{
-		Addr:     host,
-		Password: password,
-		DB:       db,
-	}
-	p.rc = redis.NewClient(&options)
-	status := p.rc.Ping()
-	return &p, status.Err()
-}
-
-func (p *redisProvider) CreateSet(id string) (SetProvider, error) {
-	return createRedisSetProvider(p.rc, id)
-}
-
-func (p *redisProvider) Close() error {
-	return p.rc.Close()
+// SetProvider - interface to working with set in external storage
+type SetProvider interface {
+	Add(item string) (bool, error)     // added flag
+	Delete(item string) (bool, error)  // deleted flag
+	Iterator() (StringIterator, error) // iterator
 }
