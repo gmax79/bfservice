@@ -100,14 +100,14 @@ func testLimitationLogin(conn *grpccon.Client) error {
 		return err
 	}
 
-	attemps := rates.LoginRate
-	logins := stringGenerator(10, attemps+10, "login")
+	attempts := rates.LoginRate
+	logins := stringGenerator(10, attempts+10, "login")
 	passwords := randomString
-	ip := fromConstGenerator("192.168.1.1", attemps+20)
+	ip := fromConstGenerator("192.168.1.1", attempts+20)
 
 	startTime := time.Now()
 	res := check(conn, logins, passwords, ip)
-	workTime := time.Now().Sub(startTime)
+	workTime := time.Since(startTime)
 
 	testLoginsRate := res.logins["login"]
 	calcLoginRate := calcWithLeaked(workTime, rates.LoginRate, rates.LoginInterval)
@@ -132,14 +132,14 @@ func testLimitationPassword(conn *grpccon.Client) error {
 	}
 
 	randomPassword := randomString() // use random password, exclude conflicts after restart test (blocking by password)
-	attemps := rates.PasswordRate
+	attempts := rates.PasswordRate
 	logins := randomString
-	passwords := fromConstGenerator(randomPassword, attemps+20)
-	ip := fromConstGenerator("192.168.1.1", attemps+20)
+	passwords := fromConstGenerator(randomPassword, attempts+20)
+	ip := fromConstGenerator("192.168.1.1", attempts+20)
 
 	startTime := time.Now()
 	res := check(conn, logins, passwords, ip)
-	workTime := time.Now().Sub(startTime)
+	workTime := time.Since(startTime)
 
 	testPasswordRate := res.passwords[randomPassword]
 	calcPasswordRate := calcWithLeaked(workTime, rates.PasswordRate, rates.PasswordInterval)
@@ -172,7 +172,7 @@ func testLimitationHost(conn *grpccon.Client) error {
 
 	startTime := time.Now()
 	res := check(conn, logins, passwords, ip)
-	workTime := time.Now().Sub(startTime)
+	workTime := time.Since(startTime)
 
 	calcHostRate := calcWithLeaked(workTime, rates.HostRate, rates.HostInterval)
 	testHostRate := res.hosts[host]
