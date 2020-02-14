@@ -9,7 +9,7 @@ import (
 	"github.com/gmax79/bfservice/internal/grpccon"
 )
 
-const timeout = time.Second * 15
+const timeout = time.Second * 5
 
 var tests = []func(*grpccon.Client) error{
 	testHealthCheck,
@@ -17,8 +17,10 @@ var tests = []func(*grpccon.Client) error{
 	testLimitationPassword,
 	testLimitationHost,
 	testWhiteList,
-	//testLimitationHost,
-	//testLimitationLoginPassword,
+	testBlackList,
+	testLimitationLogin,
+	testLimitationPassword,
+	testLimitationHost,
 }
 
 type checkResult struct {
@@ -207,9 +209,41 @@ func testWhiteList(conn *grpccon.Client) error {
 	res := check(conn, logins, passwords, ip)
 
 	testIPRate := res.hosts[host]
-	fmt.Printf("limits result: calls %d, passed ip '%s': %d\n", res.calls, host, testIPRate)
+	fmt.Printf("limits result: calls %d, passed ip: %d\n", res.calls, testIPRate)
 	if hostCalls != testIPRate {
 		return errors.New("testWhiteList failed")
+	}
+	fmt.Println("pass: limits as service settings")
+	return res.err
+}
+
+func testBlackList(conn *grpccon.Client) error {
+	fmt.Println("testBlackList")
+	rates, err := getRates(conn)
+	if err != nil {
+		return err
+	}
+
+	const host = "192.168.4.1"
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	fmt.Println("Add into blacklist", host)
+	result, err := conn.AddBlackList(ctx, host)
+	printResult(result, err)
+	if err != nil {
+		return err
+	}
+
+	attempts := rates.HostRate + 100
+	logins := randomString
+	passwords := randomString
+	ip := ipGenerator(200, "192.168.4.0", attempts, host)
+	res := check(conn, logins, passwords, ip)
+
+	testIPRate := res.hosts[host]
+	fmt.Printf("limits result: calls %d, passed ip: %d\n", res.calls, testIPRate)
+	if testIPRate != 0 {
+		return errors.New("testBlackList failed")
 	}
 	fmt.Println("pass: limits as service settings")
 	return res.err

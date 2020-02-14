@@ -18,12 +18,12 @@ func main() {
 
 func printResult(r *grpccon.Response, err error) {
 	if err != nil {
-		log.Println("grpc response: error", err.Error(), r.Reason)
+		log.Println("grpc server response: error", err.Error(), r.Reason)
 	} else {
 		if r.Status {
-			log.Println("grpc response: success", r.Reason)
+			log.Println("grpc server response: success", r.Reason)
 		} else {
-			log.Println("grpc response: failed", r.Reason)
+			log.Println("grpc server response: failed", r.Reason)
 		}
 	}
 }
