@@ -16,7 +16,7 @@ func exitOnError(err error) {
 }
 
 func main() {
-	var rootCmd = &cobra.Command{Use: "cli"}
+	var rootCmd = &cobra.Command{Use: os.Args[0]}
 	rootCmd.AddCommand(cmdUse, cmdReset, cmdPass, cmdUnpass, cmdBlock, cmdUnblock, cmdClear)
 	rootCmd.SetHelpCommand(&cobra.Command{
 		Use:    "no-help",

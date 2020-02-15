@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
+	"log"
 	"time"
 
 	"github.com/gmax79/bfservice/internal/grpccon"
@@ -90,7 +90,7 @@ func testHealthCheck(conn *grpccon.Client) error {
 }
 
 func testLimitationLogin(conn *grpccon.Client) error {
-	fmt.Println("testLimitationLogin")
+	log.Println("testLimitationLogin")
 	err := reset(conn, "login", "192.168.1.1") // reset blocks for test's login and ip (to repeating tests)
 	if err != nil {
 		return err
@@ -111,17 +111,17 @@ func testLimitationLogin(conn *grpccon.Client) error {
 
 	testLoginsRate := res.logins["login"]
 	calcLoginRate := calcWithLeaked(workTime, rates.LoginRate, rates.LoginInterval)
-	fmt.Printf("limits result: calls %d, logins passed/calculated: %d/%d\n",
+	log.Printf("limits result: calls %d, logins passed/calculated: %d/%d\n",
 		res.calls, testLoginsRate, calcLoginRate)
 	if calcLoginRate != testLoginsRate {
 		return errors.New("testLimitationLogin failed")
 	}
-	fmt.Println("pass: limits as service settings")
+	log.Println("pass: limits as service settings")
 	return res.err
 }
 
 func testLimitationPassword(conn *grpccon.Client) error {
-	fmt.Println("testLimitationPassword")
+	log.Println("testLimitationPassword")
 	err := reset(conn, "login", "192.168.1.1") // reset blocks for test's login and ip (to repeating tests)
 	if err != nil {
 		return err
@@ -144,17 +144,17 @@ func testLimitationPassword(conn *grpccon.Client) error {
 	testPasswordRate := res.passwords[randomPassword]
 	calcPasswordRate := calcWithLeaked(workTime, rates.PasswordRate, rates.PasswordInterval)
 
-	fmt.Printf("limits result: calls %d, passwords passed/calculated: %d/%d\n",
+	log.Printf("limits result: calls %d, passwords passed/calculated: %d/%d\n",
 		res.calls, testPasswordRate, calcPasswordRate)
 	if calcPasswordRate != testPasswordRate {
 		return errors.New("testLimitationPassword failed")
 	}
-	fmt.Println("pass: limits as service settings")
+	log.Println("pass: limits as service settings")
 	return res.err
 }
 
 func testLimitationHost(conn *grpccon.Client) error {
-	fmt.Println("testLimitationHost")
+	log.Println("testLimitationHost")
 	host := "192.168.2.1"
 	err := reset(conn, "", host)
 	if err != nil {
@@ -176,16 +176,16 @@ func testLimitationHost(conn *grpccon.Client) error {
 
 	calcHostRate := calcWithLeaked(workTime, rates.HostRate, rates.HostInterval)
 	testHostRate := res.hosts[host]
-	fmt.Printf("limits result: calls %d, ip passed/calculated %d/%d\n", res.calls, testHostRate, calcHostRate)
+	log.Printf("limits result: calls %d, ip passed/calculated %d/%d\n", res.calls, testHostRate, calcHostRate)
 	if calcHostRate != testHostRate {
 		return errors.New("testLimitationHost failed")
 	}
-	fmt.Println("pass: limits as service settings")
+	log.Println("pass: limits as service settings")
 	return res.err
 }
 
 func testWhiteList(conn *grpccon.Client) error {
-	fmt.Println("testWhiteList")
+	log.Println("testWhiteList")
 	rates, err := getRates(conn)
 	if err != nil {
 		return err
@@ -194,7 +194,7 @@ func testWhiteList(conn *grpccon.Client) error {
 	const host = "192.168.3.1"
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	fmt.Println("Add into whitelist", host)
+	log.Println("Add into whitelist", host)
 	result, err := conn.AddWhiteList(ctx, host)
 	printResult(result, err)
 	if err != nil {
@@ -209,13 +209,13 @@ func testWhiteList(conn *grpccon.Client) error {
 	res := check(conn, logins, passwords, ip)
 
 	testIPRate := res.hosts[host]
-	fmt.Printf("limits result: calls %d, passed ip: %d\n", res.calls, testIPRate)
+	log.Printf("limits result: calls %d, passed ip: %d\n", res.calls, testIPRate)
 	if hostCalls != testIPRate {
 		return errors.New("testWhiteList failed")
 	}
-	fmt.Println("pass: limits as service settings")
+	log.Println("pass: limits as service settings")
 
-	fmt.Println("Remove from whitelist", host)
+	log.Println("Remove from whitelist", host)
 	result, err = conn.DeleteWhiteList(ctx, host)
 	printResult(result, err)
 	if err != nil {
@@ -225,7 +225,7 @@ func testWhiteList(conn *grpccon.Client) error {
 }
 
 func testBlackList(conn *grpccon.Client) error {
-	fmt.Println("testBlackList")
+	log.Println("testBlackList")
 	rates, err := getRates(conn)
 	if err != nil {
 		return err
@@ -234,7 +234,7 @@ func testBlackList(conn *grpccon.Client) error {
 	const host = "192.168.4.1"
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	fmt.Println("Add into blacklist", host)
+	log.Println("Add into blacklist", host)
 	result, err := conn.AddBlackList(ctx, host)
 	printResult(result, err)
 	if err != nil {
@@ -248,13 +248,13 @@ func testBlackList(conn *grpccon.Client) error {
 	res := check(conn, logins, passwords, ip)
 
 	testIPRate := res.hosts[host]
-	fmt.Printf("limits result: calls %d, passed ip: %d\n", res.calls, testIPRate)
+	log.Printf("limits result: calls %d, passed ip: %d\n", res.calls, testIPRate)
 	if testIPRate != 0 {
 		return errors.New("testBlackList failed")
 	}
-	fmt.Println("pass: limits as service settings")
+	log.Println("pass: limits as service settings")
 
-	fmt.Println("Remove from blacklist", host)
+	log.Println("Remove from blacklist", host)
 	result, err = conn.DeleteBlackList(ctx, host)
 	printResult(result, err)
 	if err != nil {

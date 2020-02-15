@@ -5,6 +5,7 @@ services:
         image: gmax079/practice:abftests
         container_name: abftests
         environment:
+          ABF_HOST: "localhost:9000"
           WAIT_HOSTS: localhost:9000 # for wait tool
           WAIT_HOSTS_TIMEOUT: 10
         network_mode: "host"

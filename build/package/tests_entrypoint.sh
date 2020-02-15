@@ -2,7 +2,7 @@
 
 if [[ -z $ABF_HOST ]]; then
     echo "error: enviroment variable ABF_HOST not declared"
-    stop=1
+    exit 1
 fi
 
 ./tests || exit 1

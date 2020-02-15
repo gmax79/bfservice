@@ -30,7 +30,7 @@ test:
 	export COMPOSE_IGNORE_ORPHANS=true; \
 	exit_code=0; \
 	docker-compose -f deployments/docker-compose.yml up -d; \
-	docker-compose -f deployments/docker-compose.tests.yml up || exit_code=$$?; \
+	docker-compose -f deployments/docker-compose.tests.yml up --exit-code-from tests || exit_code=$$?; \
 	docker-compose -f deployments/docker-compose.yml -f deployments/docker-compose.tests.yml down; \
 	make docker-clean; \
 	echo "integration tests result: $$exit_code"; \
