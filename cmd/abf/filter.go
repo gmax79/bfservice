@@ -30,7 +30,7 @@ func createFilter(config RatesAndHostConfig) (*filter, error) {
 	if err != nil {
 		return nil, err
 	}
-	blProvider, err := stor.CreateSet("abdBlacklist")
+	blProvider, err := stor.CreateSet("abfBlacklist")
 	if err != nil {
 		return nil, err
 	}

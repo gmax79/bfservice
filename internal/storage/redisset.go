@@ -17,14 +17,14 @@ func createRedisSetProvider(rc *redis.Client, id string) (*redisSetProvider, err
 func (p *redisSetProvider) Add(item string) (bool, error) {
 	result := p.rc.SAdd(p.id, item)
 	v, err := result.Val(), result.Err()
-	flag := v == 0
+	flag := v != 0
 	return flag, err
 }
 
 func (p *redisSetProvider) Delete(item string) (bool, error) {
 	result := p.rc.SRem(p.id, item)
 	v, err := result.Val(), result.Err()
-	flag := v == 0
+	flag := v != 0
 	return flag, err
 }
 

@@ -65,7 +65,7 @@ func main() {
 
 	logger.Info("Rates", zap.Int("login", config.LoginRate),
 		zap.Int("password", config.PasswordRate), zap.Int("host", config.IPRate))
-	logger.Info("Redis", zap.String("host", config.RedisHost), zap.Int("db", config.RedisDB))
+	logger.Info("Redis", zap.String("host", config.RedisHost), zap.Int("db", config.RedisDB), zap.Bool("with password", config.RedisPassword != ""))
 	grpc, err := openGRPCServer(config, logger)
 	if err != nil {
 		exitOnError(err)

@@ -14,7 +14,7 @@ func CreateSubnetsList(prov storage.SetProvider) (*SubnetsList, error) {
 		list: make(map[Subnet]struct{}),
 		prov: prov,
 	}
-	// load table
+	// load from provider into cache
 	functor := func(v string) error {
 		var snet Subnet
 		err := snet.Parse(v)
@@ -28,27 +28,19 @@ func CreateSubnetsList(prov storage.SetProvider) (*SubnetsList, error) {
 	return f, err
 }
 
-// Add - add subnet into list
+// Add - add subnet into list, result added status or error
 func (s *SubnetsList) Add(snet Subnet) (bool, error) {
-	_, exist := s.list[snet]
-	if exist {
-		return true, nil
-	}
 	s.list[snet] = struct{}{}
 	return s.prov.Add(snet.String())
 }
 
-// Delete - delete subnet from list
+// Delete - delete subnet from list, result deleted status or error
 func (s *SubnetsList) Delete(snet Subnet) (bool, error) {
-	_, exist := s.list[snet]
-	if !exist {
-		return false, nil
-	}
 	delete(s.list, snet)
 	return s.prov.Delete(snet.String())
 }
 
-// Check - check host in list
+// Check - check host in list, use only cache
 func (s *SubnetsList) Check(host IPAddr) bool {
 	for snet := range s.list {
 		if snet.Check(host) {
