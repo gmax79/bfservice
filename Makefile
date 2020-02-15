@@ -1,9 +1,11 @@
+.PHONY: abf abfcli all up check run stop test clean
+
 abf:
 	cd scripts && ./genproto.sh
 	cd cmd/abf && go build -o abf
 
 abfcli:
-	cd cmd/abfcli && go build -o abfcli
+	cd cmd/abfcli && go build -o ../../abfcli
 
 all: abf abfcli
 	cd cmd/tests && go build -o tests
@@ -48,4 +50,4 @@ docker-clean:
 	docker rmi -f gmax079/practice:abftests gmax079/practice:abf
 
 clean: docker-clean
-	rm -f cmd/abf/abf cmd/abfcli/abfcli cmd/tests/tests
+	rm -f abfcli cmd/abf/abf cmd/tests/tests

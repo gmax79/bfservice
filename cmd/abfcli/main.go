@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// simple exit, without timer by log.Fatal
+// simple exit, without timer in log by log.Fatal
 func exitOnError(err error) {
 	if err != nil {
 		fmt.Println(err.Error())
@@ -17,7 +17,7 @@ func exitOnError(err error) {
 
 func main() {
 	var rootCmd = &cobra.Command{Use: os.Args[0]}
-	rootCmd.AddCommand(cmdUse, cmdReset, cmdPass, cmdUnpass, cmdBlock, cmdUnblock, cmdClear)
+	rootCmd.AddCommand(cmdUse, cmdReset, cmdPass, cmdUnpass, cmdBlock, cmdUnblock, cmdClear, cmdCheck)
 	rootCmd.SetHelpCommand(&cobra.Command{
 		Use:    "no-help",
 		Hidden: true,
@@ -106,6 +106,18 @@ var cmdUnblock = &cobra.Command{
 	Args:                  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		err := unblockCommand(args[0])
+		exitOnError(err)
+	},
+}
+
+var cmdCheck = &cobra.Command{
+	Use:                   "check <login> <password> <host>",
+	Short:                 "Check state in service for login/password/host",
+	Long:                  "Try login with paramaters and print response from service",
+	DisableFlagsInUseLine: true,
+	Args:                  cobra.ExactArgs(3),
+	Run: func(cmd *cobra.Command, args []string) {
+		err := checkCommand(args[0], args[1], args[2])
 		exitOnError(err)
 	},
 }

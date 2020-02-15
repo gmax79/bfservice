@@ -63,6 +63,11 @@ func (ab *AbfGrpcImpl) CheckLogin(ctx context.Context, in *grpcapi.CheckLoginReq
 func (ab *AbfGrpcImpl) ResetLogin(ctx context.Context, in *grpcapi.ResetLoginRequest) (*grpcapi.ResetLoginResponse, error) {
 	var out grpcapi.ResetLoginResponse
 	out.Reseted = ab.hfilter.ResetLogin(in.Login, in.Ip)
+	if out.Reseted {
+		out.Reason = "exists"
+	} else {
+		out.Reason = "not found"
+	}
 	ab.logger.Info("Reset login/ip", zap.String("login", in.Login), zap.String("host", in.Ip), zap.Bool("was exist", out.Reseted))
 	return &out, nil
 }

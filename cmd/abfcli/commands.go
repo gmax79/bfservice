@@ -169,3 +169,27 @@ func unblockCommand(snet string) (err error) {
 	}
 	return nil
 }
+
+func checkCommand(login, password, host string) (err error) {
+	fmt.Printf("Check login:'%s', password:'%s', host:'%s'\n", login, password, host)
+
+	var conn *connector
+	if conn, err = getConnector(""); err != nil {
+		return
+	}
+	defer conn.close()
+
+	var resp *grpccon.Response
+	if resp, err = conn.client.CheckLogin(conn.ctx, login, password, host); err != nil {
+		return
+	}
+	result := "failed"
+	if resp.Status {
+		result = "passed"
+	}
+	if resp.Reason != "" {
+		result = result + "; " + resp.Reason
+	}
+	fmt.Printf("Response: %s\n", result)
+	return nil
+}
