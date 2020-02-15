@@ -14,21 +14,18 @@ func CreateSubnetsList(prov storage.SetProvider) (*SubnetsList, error) {
 		list: make(map[Subnet]struct{}),
 		prov: prov,
 	}
-	// load table in memory
-	iter, err := prov.Iterator()
-	if err != nil {
-		return nil, err
-	}
-	s, ok := iter()
-	for ; ok; s, ok = iter() {
+	// load table
+	functor := func(v string) error {
 		var snet Subnet
-		err := snet.Parse(s)
+		err := snet.Parse(v)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		f.list[snet] = struct{}{}
+		return nil
 	}
-	return f, nil
+	err := prov.Load(functor)
+	return f, err
 }
 
 // Add - add subnet into list

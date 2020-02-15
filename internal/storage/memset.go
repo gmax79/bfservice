@@ -28,8 +28,7 @@ func (p *memorySetProvider) Delete(item string) (bool, error) {
 	return false, nil
 }
 
-func (p *memorySetProvider) Iterator() (StringIterator, error) {
-	return func() (string, bool) {
-
-	}, nil
+func (p *memorySetProvider) Load(f func(v string) error) error {
+	// memory set not load data from somethere
+	return nil
 }

@@ -13,5 +13,5 @@ type StringIterator func() (string, bool) // string, end of array flag
 type SetProvider interface {
 	Add(item string) (bool, error)     // added flag
 	Delete(item string) (bool, error)  // deleted flag
-	Iterator() (StringIterator, error) // iterator
+	Load(f func(v string) error) error // load set from storage via functor
 }

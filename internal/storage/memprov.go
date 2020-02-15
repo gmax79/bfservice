@@ -1,7 +1,7 @@
 package storage
 
-// ConnectMemory - connect to in memory storage
-func ConnectMemory() (Provider, error) {
+// InMemoryStorage - create to in memory storage
+func InMemoryStorage() (Provider, error) {
 	var p memoryProvider
 	return &p, nil
 }

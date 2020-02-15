@@ -28,15 +28,17 @@ func (p *redisSetProvider) Delete(item string) (bool, error) {
 	return flag, err
 }
 
-func (p *redisSetProvider) Iterator() (StringIterator, error) {
+func (p *redisSetProvider) Load(f func(v string) error) error {
 	cmd := p.rc.SScan(p.id, 0, "", 0)
 	err := cmd.Err()
 	if err != nil {
-		return nil, err
+		return err
 	}
-	iterator := func() (string, bool) {
-		val := cmd.String()
-		return val, cmd.Err() != nil
+	iter := cmd.Iterator()
+	for iter.Next() {
+		if err := f(iter.Val()); err != nil {
+			return err
+		}
 	}
-	return iterator, nil
+	return nil
 }

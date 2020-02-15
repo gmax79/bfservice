@@ -17,20 +17,20 @@ func makesubnet(s string) Subnet {
 	return snet
 }
 
-func createSet() (storage.SetProvider, error) {
-	memstor, err := storage.ConnectMemory()
+func createTestSet() (storage.SetProvider, error) {
+	memstor, err := storage.InMemoryStorage()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	set, err := memstor.CreateSet("test")
+	set, err := memstor.CreateSet("testSet")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	return set, nil
 }
 
 func TestSubnetsListInList(t *testing.T) {
-	set, err := createSet()
+	set, err := createTestSet()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,7 +74,7 @@ func TestSubnetsListInList(t *testing.T) {
 }
 
 func TestSubnetsListDelete(t *testing.T) {
-	set, err := createSet()
+	set, err := createTestSet()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -94,7 +94,7 @@ func TestSubnetsListDelete(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !!deleted2 {
+	if !deleted2 {
 		t.Fatal("Not found added subnet")
 	}
 }
