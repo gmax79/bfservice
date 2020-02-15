@@ -9,5 +9,28 @@ services:
         ABF_LOGIN_RATE: 10
         ABF_PASSWORD_RATE: 100
         ABF_IP_RATE: 1000
+        ABF_REDIS_HOST: "redis:6379"
+        WAIT_HOSTS: redis:6379 # for wait tool
       ports:
         - "9000:9000"
+      networks:
+        abf_net:
+          ipv4_address: 10.0.0.10
+          aliases:
+            - abf
+  
+    redis:
+      image: redis:5.0.7
+      container_name: abf-redis
+      networks:
+        abf_net:
+          ipv4_address: 10.0.0.11
+          aliases:
+            - redis
+
+networks:
+  abf_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: "10.0.0.0/24"

@@ -48,4 +48,6 @@ fi
 envsubst < abf_config.json.template > config.json
 cat config.json
 
+chmod +x wait
+./wait || exit 1
 ./abf || exit 1

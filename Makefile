@@ -6,6 +6,7 @@ abfcli:
 	cd cmd/abfcli && go build -o abfcli
 
 all: abf abfcli
+	cd cmd/tests && go build -o tests
 
 up: abf
 	cd cmd/abf  && ./abf
@@ -18,31 +19,33 @@ unittest:
 	cd internal/ratelimit && go test -v -race
 	cd cmd/tests && go test -v -race
 
-test: docker docker-tests unittest
+run:
+	docker-compose -f deployments/docker-compose.yml up -d
+
+stop:
+	docker-compose -f deployments/docker-compose.yml down
+
+test:
 	set -e; \
 	export COMPOSE_IGNORE_ORPHANS=true; \
-	docker-compose -f deployments/docker-compose.yml up -d; \
 	exit_code=0; \
-	docker run --network host --rm abftests || exit_code=$$?; \
-	docker-compose -f deployments/docker-compose.yml down; \
-	docker rmi -f abftests gmax079/practice:abf; \
-	echo "integration_tests result: $$exit_code"; \
-	exit $$exit_code
+	docker-compose -f deployments/docker-compose.yml up -d; \
+	docker-compose -f deployments/docker-compose.tests.yml up || exit_code=$$?; \
+	docker-compose -f deployments/docker-compose.yml -f deployments/docker-compose.tests.yml down; \
+	make docker-clean; \
+	echo "integration tests result: $$exit_code"; \
+	exit $$exit_code;
 
 docker:
 	docker build -f build/package/abf.dockerfile -t gmax079/practice:abf .
-
-docker-tests:
-	docker build -f build/package/tests.dockerfile -t abftests .
+	docker build -f build/package/tests.dockerfile -t gmax079/practice:abftests .
 
 docker-push:
 	docker push gmax079/practice:abf
+	docker push gmax079/practice:abftests
 
 docker-clean:
-	docker rmi -f abftests gmax079/practice:abf
-
-run:
-	cd deployments && docker-compose -f docker-compose.yml up
+	docker rmi -f gmax079/practice:abftests gmax079/practice:abf
 
 clean: docker-clean
 	rm -f cmd/abf/abf cmd/abfcli/abfcli cmd/tests/tests

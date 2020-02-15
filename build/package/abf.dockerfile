@@ -11,6 +11,7 @@ RUN \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /root
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.2.1/wait ./wait
 COPY build/package/abf_entrypoint.sh build/package/abf_config.json.template ./
 COPY --from=builder /app/cmd/abf/abf ./
 ENTRYPOINT "./abf_entrypoint.sh"
