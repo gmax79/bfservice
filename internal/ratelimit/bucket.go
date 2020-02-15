@@ -54,6 +54,11 @@ func (b *Bucket) GetScores() int {
 	return b.fill
 }
 
+// Empty - check bucket empty state
+func (b *Bucket) Empty() bool {
+	return b.GetScores() == 0
+}
+
 // Drain - remove fill level from busket with configured rate
 func (b *Bucket) drain() {
 	now := b.clock.Now()

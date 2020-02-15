@@ -49,10 +49,10 @@ func TestLimitationGC(t *testing.T) {
 		t.Fatal("Limitation must blocking")
 	}
 
-	// wait lifetime of bucket
-	clock.Advance(bucketsLifeTime)
+	// wait time to drain all elements
+	clock.Advance(time.Second)
 
-	// sleep, run gc goroutine
+	// sleep to run gc goroutine
 	time.Sleep(time.Millisecond * 100)
 
 	if l.Size() != 0 {

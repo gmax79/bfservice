@@ -27,7 +27,7 @@ func CreateLimitation(bf func() *Bucket) *Limitation {
 			m.mutex.Lock()
 			for k, t := range m.items {
 				d := t.Idletime()
-				if d >= bucketsLifeTime {
+				if d >= bucketsLifeTime && t.Empty() {
 					delete(m.items, k)
 				}
 			}
