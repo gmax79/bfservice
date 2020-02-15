@@ -15,7 +15,7 @@ echo "Integration tests via abfcli"
 ./abfcli block "192.168.100.1"
 ./abfcli unblock "192.168.100.1"
 
-echo "Check via abfcli check"
+echo "Check via abfcli check [11](login,password,host), 10-passed, 11-failed"
 ./abfcli check "login" "password" "127.0.0.1" | grep passed >/dev/null 2>&1 || exit 1
 ./abfcli check "login" "password" "127.0.0.1" | grep passed >/dev/null 2>&1 || exit 1
 ./abfcli check "login" "password" "127.0.0.1" | grep passed >/dev/null 2>&1 || exit 1
@@ -29,4 +29,5 @@ echo "Check via abfcli check"
 ./abfcli check "login" "password" "127.0.0.1" | grep failed >/dev/null 2>&1 || exit 1
 echo "Succefully tested"
 
-./abfcli clear "login" "127.0.0.1"
+./abfcli clear "login" "127.0.0.1" || exit 1
+
