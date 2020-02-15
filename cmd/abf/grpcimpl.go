@@ -130,7 +130,7 @@ func (ab *AbfGrpcImpl) DeleteBlackList(ctx context.Context, in *grpcapi.DeleteBl
 	ab.logger.Info("Delete from blacklist", zap.String("mask", in.Ipmask))
 	var out grpcapi.DeleteBlackListResponse
 	var err error
-	out.Deleted, err = ab.hfilter.AddBlackList(in.Ipmask)
+	out.Deleted, err = ab.hfilter.DeleteBlackList(in.Ipmask)
 	if err != nil {
 		ab.logger.Error("Delete from blacklist", zap.String("mask", in.Ipmask), zap.Error(err))
 		out.Reason = err.Error()

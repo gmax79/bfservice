@@ -214,6 +214,13 @@ func testWhiteList(conn *grpccon.Client) error {
 		return errors.New("testWhiteList failed")
 	}
 	fmt.Println("pass: limits as service settings")
+
+	fmt.Println("Remove from whitelist", host)
+	result, err = conn.DeleteWhiteList(ctx, host)
+	printResult(result, err)
+	if err != nil {
+		return err
+	}
 	return res.err
 }
 
@@ -246,5 +253,13 @@ func testBlackList(conn *grpccon.Client) error {
 		return errors.New("testBlackList failed")
 	}
 	fmt.Println("pass: limits as service settings")
+
+	fmt.Println("Remove from blacklist", host)
+	result, err = conn.DeleteBlackList(ctx, host)
+	printResult(result, err)
+	if err != nil {
+		return err
+	}
+
 	return res.err
 }

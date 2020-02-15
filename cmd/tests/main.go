@@ -17,13 +17,18 @@ func main() {
 }
 
 func printResult(r *grpccon.Response, err error) {
+	reason := ""
+	if r != nil {
+		reason = r.Reason
+	}
+
 	if err != nil {
-		log.Println("grpc server response: error", err.Error(), r.Reason)
+		log.Println("grpc server response: error", err.Error(), reason)
 	} else {
 		if r.Status {
-			log.Println("grpc server response: success", r.Reason)
+			log.Println("grpc server response: success", reason)
 		} else {
-			log.Println("grpc server response: failed", r.Reason)
+			log.Println("grpc server response: failed", reason)
 		}
 	}
 }
