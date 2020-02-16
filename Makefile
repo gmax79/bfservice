@@ -14,7 +14,7 @@ up: abf
 	cd cmd/abf  && ./abf
 
 check:
-	golangci-lint run --enable-all --disable wsl --disable lll --disable gochecknoglobals --disable gochecknoinits --disable gomnd
+	golangci-lint run --enable-all --disable wsl --disable lll --disable gochecknoglobals --disable gochecknoinits --disable gomnd --disable interfacer
 
 unittest:
 	cd internal/netsupport && go test -v -race

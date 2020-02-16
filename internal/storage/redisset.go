@@ -7,11 +7,11 @@ type redisSetProvider struct {
 	id string
 }
 
-func createRedisSetProvider(rc *redis.Client, id string) (*redisSetProvider, error) {
+func createRedisSetProvider(rc *redis.Client, id string) *redisSetProvider {
 	var p redisSetProvider
 	p.rc = rc
 	p.id = id
-	return &p, nil
+	return &p
 }
 
 func (p *redisSetProvider) Add(item string) (bool, error) {

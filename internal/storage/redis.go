@@ -20,7 +20,7 @@ type redisProvider struct {
 }
 
 func (p *redisProvider) CreateSet(id string) (SetProvider, error) {
-	return createRedisSetProvider(p.rc, id)
+	return createRedisSetProvider(p.rc, id), nil
 }
 
 func (p *redisProvider) Close() error {
