@@ -19,35 +19,25 @@ golangci-lint:
   script:
     - make check
 
-buildapp:
+buildall:
   stage: build
   image: golang:1.13.7
   script:
     - ./build/ci/install_protoc.sh
-    - make abf
+    - make all
+    - cp cmd/abf/abf .
+    - cp cmd/tests/tests .
+    - cp cmd/abfcli/abfcli .
   artifacts:
     paths:
-      - cmd/abf/abf
-
-buildautotests:
-  stage: build
-  image: golang:1.13.7
-  script:
-    - make abftests
-  artifacts:
-    paths:
-      - cmd/tests/tests
+      - abf
+      - tests
+      - abfcli
 
 runautotests:
   stage: autotests
   image: ubuntu:18.04
   dependencies: 
-    - buildapp
-    - buildautotests
-  needs:
-    - job: buildapp
-      artifacts: true
-    - job: buildautotests
-      artifacts: true
+    - buildall
   script:
       - ./build/ci/run_autotests.sh
