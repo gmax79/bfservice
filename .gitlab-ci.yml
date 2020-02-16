@@ -1,5 +1,6 @@
 stages:
   - test
+  - build
   - autotests
 
 unittest:
@@ -18,9 +19,33 @@ golangci-lint:
   script:
     - make check
 
-integration_tests:
+buildapp:
+  stage: build
+  image: golang:1.13.7
+  script:
+    - ./build/ci/install_protoc.sh
+    - make abf
+  artifacts:
+    paths:
+      - cmd/abf/abf
+
+buildautotests:
+  stage: build
+  image: golang:1.13.7
+  script:
+    - make abftests
+  artifacts:
+    paths:
+      - cmd/tests/tests
+
+runautotests:
   stage: autotests
   image: ubuntu:18.04
+  needs:
+    - job: buildapp
+      artifacts: true
+    - job: buildautotests
+      artifacts: true
   script:
-    - make docker
-    - make test
+      - abf &
+      - abftests
