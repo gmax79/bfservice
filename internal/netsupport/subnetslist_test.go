@@ -38,8 +38,20 @@ func TestSubnetsListInList(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	s.Add(makesubnet("192.168.1.0/24"))
-	s.Add(makesubnet("10.0.0.0/8"))
+	ok, err := s.Add(makesubnet("192.168.1.0/24"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal("Subnet must be added")
+	}
+	ok, err = s.Add(makesubnet("10.0.0.0/8"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal("Subnet must be added")
+	}
 
 	for i := 0; i <= 255; i++ {
 		ipaddr := "192.168.1." + strconv.Itoa(i)
@@ -82,7 +94,14 @@ func TestSubnetsListDelete(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	s.Add(makesubnet("192.168.1.0/24"))
+	ok, err := s.Add(makesubnet("192.168.1.0/24"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal("Subnet must be added")
+	}
+
 	deleted1, err := s.Delete(makesubnet("192.168.0.0/24"))
 	if err != nil {
 		t.Fatal(err)

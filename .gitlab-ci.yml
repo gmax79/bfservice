@@ -1,0 +1,45 @@
+stages:
+  - test
+  - build
+  - autotests
+
+unittest:
+  stage: test
+  image: golang:1.13.7
+  script:
+    - go get -u github.com/jstemmer/go-junit-report
+    - make unittest | go-junit-report > report.xml
+  artifacts:
+    reports:
+      junit: report.xml
+
+golangci-lint:
+  stage: test
+  image: golangci/golangci-lint
+  script:
+    - make check
+
+buildall:
+  stage: build
+  image: golang:1.13.7
+  script:
+    - apt-get update -y && apt-get install unzip 
+    - ./build/ci/install_protoc.sh
+    - make all
+    - cp cmd/abf/abf cmd/tests/tests build/package/tests_entrypoint.sh build/ci/run_autotests.sh build/ci/config.json .
+  artifacts:
+    paths:
+      - run_autotests.sh
+      - tests_entrypoint.sh
+      - abf
+      - config.json
+      - abfcli
+      - tests
+
+runautotests:
+  stage: autotests
+  image: ubuntu:18.04
+  dependencies: 
+    - buildall
+  script:
+      - ./run_autotests.sh

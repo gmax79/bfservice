@@ -1,25 +1,28 @@
 .PHONY: abf abfcli all up check run stop test clean
 
 abf:
-	cd scripts && ./genproto.sh
-	cd cmd/abf && go build -o abf
+	cd scripts && ./genproto.sh && cd ../cmd/abf && go build -o abf
 
 abfcli:
 	cd cmd/abfcli && go build -o ../../abfcli
 
-all: abf abfcli
+abftests:
 	cd cmd/tests && go build -o tests
+
+all: abf abfcli abftests
 
 up: abf
 	cd cmd/abf  && ./abf
 
 check:
-	golangci-lint run --enable-all --disable wsl --disable lll --disable gochecknoglobals --disable gochecknoinits --disable gomnd
+	go vet ./...
+	go fmt ./...
+	golangci-lint run --enable-all --disable wsl --disable lll --disable gochecknoglobals --disable gochecknoinits --disable gomnd --disable interfacer
 
 unittest:
-	cd internal/netsupport && go test -v -race
-	cd internal/ratelimit && go test -v -race
-	cd cmd/tests && go test -v -race
+	cd internal/netsupport && go test -v -race 2>&1
+	cd internal/ratelimit && go test -v -race 2>&1
+	cd cmd/tests && go test -v -race 2>&1
 
 run:
 	docker-compose -f deployments/docker-compose.yml up -d

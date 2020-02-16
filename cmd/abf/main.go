@@ -28,13 +28,13 @@ type RatesAndHostConfig struct {
 // Check - validate config values
 func (r *RatesAndHostConfig) Check() error {
 	if r.LoginRate <= 0 || r.PasswordRate <= 0 || r.IPRate <= 0 {
-		return errors.New("One of rate parameters in config is absent, negative or zero")
+		return errors.New("one of rate parameters in config is absent, negative or zero")
 	}
 	if r.Host == "" {
-		return errors.New("Host parameter not declared")
+		return errors.New("host parameter not declared")
 	}
 	if r.RedisHost == "" {
-		return errors.New("Redis host parameter not declared")
+		return errors.New("redis host parameter not declared")
 	}
 	return nil
 }

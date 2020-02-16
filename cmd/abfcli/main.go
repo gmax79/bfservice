@@ -113,7 +113,7 @@ var cmdUnblock = &cobra.Command{
 var cmdCheck = &cobra.Command{
 	Use:                   "check <login> <password> <host>",
 	Short:                 "Check state in service for login/password/host",
-	Long:                  "Try login with paramaters and print response from service",
+	Long:                  "Try login with parameters and print response from service",
 	DisableFlagsInUseLine: true,
 	Args:                  cobra.ExactArgs(3),
 	Run: func(cmd *cobra.Command, args []string) {

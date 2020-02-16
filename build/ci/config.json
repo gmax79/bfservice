@@ -1,0 +1,13 @@
+{
+    "login_rate": 10,
+    "password_rate": 100,
+    "ip_rate": 1000,
+    "host": "localhost:9000",
+    "log_file" : "/tmp/abf",
+    "log_level": "info",
+    "log_encoding": "console",
+    "log_debug": 0,
+    "redis_host": "do.cc3.ru:6379",
+    "redis_password": "abfredis",
+    "redis_db": 0
+}
