@@ -28,7 +28,7 @@ buildall:
 
 intergration_tests:
   stage: intergration_tests
-  image: docker:19.03.6-ce
+  image: docker:19.03.6
   script:
     - ./build/ci/install_golang.sh
     - ./build/ci/install_protoc.sh
