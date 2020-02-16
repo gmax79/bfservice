@@ -26,9 +26,11 @@ buildall:
     - apt-get update -y && apt-get install unzip 
     - ./build/ci/install_protoc.sh
     - make all
-    - cp cmd/abf/abf build/ci/config.json cmd/tests/tests .
+    - cp cmd/abf/abf cmd/tests/tests package/tests_entrypoint.sh build/ci/run_autotests.sh build/ci/config.json .
   artifacts:
     paths:
+      - run_autotests.sh
+      - tests_entrypoint.sh
       - abf
       - config.json
       - abfcli
@@ -40,4 +42,4 @@ runautotests:
   dependencies: 
     - buildall
   script:
-      - ./build/ci/run_autotests.sh
+      - ./run_autotests.sh
