@@ -10,7 +10,7 @@ unzip -o $PROTOC_ZIP -d /usr/local bin/protoc
 unzip -o $PROTOC_ZIP -d /usr/local 'include/*'
 rm -f $PROTOC_ZIP
 
-GIT_TAG="v1.3.3" # protoc-gen-go version
+GIT_TAG="v1.2.0" # protoc-gen-go version
 go get -d -u github.com/golang/protobuf/protoc-gen-go
 git -C "$(go env GOPATH)"/src/github.com/golang/protobuf checkout $GIT_TAG
 go install github.com/golang/protobuf/protoc-gen-go
