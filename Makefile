@@ -16,6 +16,8 @@ up: abf
 	cd cmd/abf  && ./abf
 
 check:
+	go vet ./...
+	go fmt ./...
 	golangci-lint run --enable-all --disable wsl --disable lll --disable gochecknoglobals --disable gochecknoinits --disable gomnd --disable interfacer
 
 unittest:
