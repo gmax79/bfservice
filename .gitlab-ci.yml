@@ -8,6 +8,7 @@ intergration_tests:
     - apk add bash curl make unzip
     - ./build/ci/install_golang.sh
     - export PATH=/usr/local/go/bin:$PATH
+    - ls -la /usr/local/go/bin
     - go version
     - ./build/ci/install_protoc.sh
     - make docker
