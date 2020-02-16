@@ -20,6 +20,7 @@ golangci-lint:
 
 integration_tests:
   stage: autotests
-  image: ubnutu:18.04
+  image: ubuntu:18.04
   script:
+    - make docker
     - make test
