@@ -1,6 +1,4 @@
 stages:
-  #- test
-  #- build
   - intergration_tests
 
 unittest:
