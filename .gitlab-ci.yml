@@ -30,7 +30,8 @@ intergration_tests:
   stage: intergration_tests
   image: docker:19.03.6
   script:
-    - bash ./build/ci/install_golang.sh
-    - bash ./build/ci/install_protoc.sh
+    - ./build/ci/install_packages.sh
+    - ./build/ci/install_golang.sh
+    - ./build/ci/install_protoc.sh
     - make docker
     - make test
