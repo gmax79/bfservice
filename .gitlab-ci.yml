@@ -1,7 +1,6 @@
 stages:
   - test
-  - build
-  - buildbautotests
+  - autotests
 
 unittest:
   stage: test
@@ -12,28 +11,15 @@ unittest:
   artifacts:
     reports:
       junit: report.xml
-      
+
 golangci-lint:
   stage: test
   image: golangci/golangci-lint
   script:
     - make check
 
-buildapp:
-  stage: build
-  image: golang:1.13.7
+integration_tests:
+  stage: autotests
+  image: ubnutu:18.04
   script:
-    - ./build/ci/install_protoc.sh
-    - make abf
-  artifacts:
-    paths:
-      - cmd/abf/abf
-
-buildautotests:
-  stage: buildbautotests
-  image: golang:1.13.7
-  script:
-    - make abftests
-  artifacts:
-    paths:
-      - cmd/tests/tests
+    - make test
