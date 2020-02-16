@@ -1,6 +1,7 @@
 stages:
   - test
   - build
+  - autotests
 
 unittest:
   stage: test
@@ -25,10 +26,18 @@ buildall:
     - apt-get update -y && apt-get install unzip 
     - ./build/ci/install_protoc.sh
     - make all
-    - cp cmd/abf/abf cmd/abf/config.json cmd/tests/tests .
+    - cp cmd/abf/abf build/ci/config.json cmd/tests/tests .
   artifacts:
     paths:
       - abf
       - config.json
       - abfcli
       - tests
+
+runautotests:
+  stage: autotests
+  image: ubuntu:18.04
+  dependencies: 
+    - buildall
+  script:
+      - ./build/ci/run_autotests.sh
