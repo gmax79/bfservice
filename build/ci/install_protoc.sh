@@ -8,10 +8,11 @@ PROTOC_ZIP="protoc-$PROTOC_VERSION-linux-x86_64.zip"
 curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v$PROTOC_VERSION/$PROTOC_ZIP
 unzip -o $PROTOC_ZIP -d /usr/local bin/protoc
 unzip -o $PROTOC_ZIP -d /usr/local 'include/*'
-rm -f $PROTOC_ZIP
 
-GIT_TAG="v1.3.2" # protoc-gen-go version
-go get -d -u github.com/golang/protobuf/protoc-gen-go
-mkdir -p "$(go env GOPATH)"/src/github.com/golang/protobuf
-git -C "$(go env GOPATH)"/src/github.com/golang/protobuf checkout $GIT_TAG
-go install github.com/golang/protobuf/protoc-gen-go
+GOGEN_VERSION="1.3.2" # protoc-gen-go version
+GOGEN_ZIP="protobuf-$GOGEN_VERSION.zip"
+UPACKED="protobuf-$GOGEN_VERSION"
+curl -o $GOGEN_ZIP -OL https://github.com/golang/protobuf/archive/v$GOGEN_VERSION.zip 
+unzip -o $GOGEN_ZIP
+cd $UPACKED
+make install
