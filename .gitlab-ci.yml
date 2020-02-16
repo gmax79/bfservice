@@ -1,6 +1,6 @@
 stages:
-  - test
-  - build
+  #- test
+  #- build
   - intergration_tests
 
 unittest:
@@ -34,6 +34,8 @@ intergration_tests:
     - apk add bash curl make unzip
     - ./build/ci/install_golang.sh
     - export PATH=/usr/local/go:$PATH
+    - ls /usr/local/go
+    - echo $PATH
     - ./build/ci/install_protoc.sh
     - make docker
     - make test
