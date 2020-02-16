@@ -27,7 +27,6 @@ buildall:
     - make all
     - cp cmd/abf/abf .
     - cp cmd/tests/tests .
-    - cp cmd/abfcli/abfcli .
   artifacts:
     paths:
       - abf
