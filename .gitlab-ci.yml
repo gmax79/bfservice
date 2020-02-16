@@ -33,7 +33,7 @@ intergration_tests:
   script:
     - apk add bash curl make unzip
     - ./build/ci/install_golang.sh
-    - ./build/ci/install_protoc.sh
     - export PATH=/usr/local/go:$PATH
+    - ./build/ci/install_protoc.sh
     - make docker
     - make test
