@@ -7,9 +7,7 @@ intergration_tests:
   script:
     - apk add bash curl make unzip
     - ./build/ci/install_golang.sh
-    - export PATH=/usr/local/go:$PATH
-    - ls /usr/local/go
-    - echo $PATH
+    - export PATH=/usr/local/go/bin:$PATH
     - ./build/ci/install_protoc.sh
     - make docker
     - make test
