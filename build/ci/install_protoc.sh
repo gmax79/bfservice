@@ -9,3 +9,5 @@ curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v$PROTOC_
 unzip -o $PROTOC_ZIP -d /usr/local bin/protoc
 unzip -o $PROTOC_ZIP -d /usr/local 'include/*'
 rm -f $PROTOC_ZIP
+
+go get -u github.com/golang/protobuf/protoc-gen-go
