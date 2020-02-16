@@ -41,6 +41,9 @@ buildautotests:
 runautotests:
   stage: autotests
   image: ubuntu:18.04
+  dependencies: 
+    - buildapp
+    - buildautotests
   needs:
     - job: buildapp
       artifacts: true
