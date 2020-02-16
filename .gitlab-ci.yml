@@ -1,13 +1,14 @@
 stages:
   - test
   - build
+  - buildbautotests
 
 unittest:
   stage: test
   image: golang:1.13.7
   script:
     - go get -u github.com/jstemmer/go-junit-report
-    - go test -v 2>&1 | go-junit-report > report.xml
+    - make unittest | go-junit-report > report.xml
   artifacts:
     reports:
       junit: report.xml
@@ -26,3 +27,12 @@ buildapp:
   artifacts:
     paths:
       - cmd/abf/abf
+
+buildautotests:
+  stage: buildbautotests
+  image: golang:1.13.7
+  script:
+    - make abftests
+  artifacts:
+    paths:
+      - cmd/tests/tests
