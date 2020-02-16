@@ -1,7 +1,7 @@
 stages:
   - test
   - build
-  - autotests
+  - intergration_tests
 
 unittest:
   stage: test
@@ -25,18 +25,11 @@ buildall:
   script:
     - ./build/ci/install_protoc.sh
     - make all
-    - cp cmd/abf/abf .
-    - cp cmd/tests/tests .
-  artifacts:
-    paths:
-      - abf
-      - tests
-      - abfcli
 
-runautotests:
-  stage: autotests
-  image: ubuntu:18.04
-  dependencies: 
-    - buildall
+intergration_tests:
+  stage: intergration_tests
+  image: golang:1.13.7
   script:
-      - ./build/ci/run_autotests.sh
+    - ./build/ci/install_protoc.sh
+    - make docker
+    - make test
