@@ -1,8 +1,5 @@
 #!/bin/bash
 
-apt-get update -y
-apt-get install unzip
-
 PROTOC_VERSION="3.9.1"
 PROTOC_ZIP="protoc-$PROTOC_VERSION-linux-x86_64.zip"
 curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v$PROTOC_VERSION/$PROTOC_ZIP

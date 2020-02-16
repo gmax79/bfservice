@@ -23,6 +23,7 @@ buildall:
   stage: build
   image: golang:1.13.7
   script:
+    - apt-get update -y && apt-get install unzip 
     - ./build/ci/install_protoc.sh
     - make all
 
@@ -30,7 +31,7 @@ intergration_tests:
   stage: intergration_tests
   image: docker:19.03.6
   script:
-    - apk add bash curl make
+    - apk add bash curl make unzip
     - ./build/ci/install_golang.sh
     - ./build/ci/install_protoc.sh
     - make docker
