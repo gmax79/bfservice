@@ -47,5 +47,4 @@ runautotests:
     - job: buildautotests
       artifacts: true
   script:
-      - abf &
-      - abftests
+      - ./build/ci/run_autotests.sh
