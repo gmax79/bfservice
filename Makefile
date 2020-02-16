@@ -1,8 +1,7 @@
 .PHONY: abf abfcli all up check run stop test clean
 
 abf:
-	cd scripts && ./genproto.sh
-	cd cmd/abf && go build -o abf
+	cd scripts && ./genproto.sh && cd ../cmd/abf && go build -o abf
 
 abfcli:
 	cd cmd/abfcli && go build -o ../../abfcli
