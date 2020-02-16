@@ -34,5 +34,6 @@ intergration_tests:
     - apk add bash curl make unzip
     - ./build/ci/install_golang.sh
     - ./build/ci/install_protoc.sh
+    - export PATH=/usr/local/go:$PATH
     - make docker
     - make test
