@@ -20,6 +20,9 @@ check:
 	golangci-lint run --enable-all --disable wsl --disable lll --disable gochecknoglobals --disable gochecknoinits --disable gomnd --disable interfacer
 
 unittest:
+	cd internal/netsupport && go test -v 2>&1
+	cd internal/ratelimit && go test -v 2>&1
+	cd cmd/tests && go test -v 2>&1
 	cd internal/netsupport && go test -v -race 2>&1
 	cd internal/ratelimit && go test -v -race 2>&1
 	cd cmd/tests && go test -v -race 2>&1
