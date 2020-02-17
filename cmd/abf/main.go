@@ -40,6 +40,9 @@ func (r *RatesAndHostConfig) Check() error {
 }
 
 func main() {
+
+	//startpprof()
+
 	var err error
 	var configJSON []byte
 	if configJSON, err = ioutil.ReadFile("config.json"); err != nil {
